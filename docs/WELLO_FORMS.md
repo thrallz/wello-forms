@@ -97,3 +97,16 @@ Vtiger's built-in **Esign Documents** module only talks to DocuSign / Zoho Sign,
 Build the CRM layer behind an adapter (`Wello::Crm::VtigerAdapter`) so a `SuiteCrmAdapter` can be added later without touching the signing flow.
 
 Config (`.env`): `VTIGER_URL`, `VTIGER_USERNAME`, `VTIGER_ACCESS_KEY` (user preferences → access key).
+
+## Brand palette (Phase 1)
+
+| Name | Hex | Use |
+|---|---|---|
+| Wello Orange | `#F7991F` | Logo, highlights, badges (daisyUI `secondary`) |
+| Charcoal | `#1F2328` | Main buttons, body text (`neutral`, `base-content`) |
+| White | `#FFFFFF` | Page background (`base-100`) |
+| Deep Teal | `#0E7490` | Accent: links, info, completed states (`accent`) |
+| Orange Tint | `#FDE7CC` | Soft buttons, filter chips (`primary`) |
+| Dark Orange | `#B45309` | Orange text on white (readable contrast) |
+
+Use charcoal text on orange; white on orange is too low-contrast. Logo files: `public/wello/`. Brand constants: `lib/wello.rb`. Preview: `docs/wello-brand-sheet.png`.

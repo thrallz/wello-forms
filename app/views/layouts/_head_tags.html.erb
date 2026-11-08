@@ -1,5 +1,5 @@
 <title>
-  <%= turbo_native_app? ? content_for(:native_title) : (content_for(:html_title) || (signed_in? ? 'DocuSeal' : 'DocuSeal | Open Source Document Signing')) %>
+  <%= turbo_native_app? ? content_for(:native_title) : (content_for(:html_title) || (signed_in? ? Wello.brand_name : "#{Wello.brand_name} | #{Wello::COMPANY_NAME} Document Signing")) %>
 </title>
 <%= render 'shared/meta' %>
 <% if turbo_native_app? %>
