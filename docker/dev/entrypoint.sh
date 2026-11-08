@@ -19,7 +19,11 @@ fi
 mkdir -p tmp public/fonts
 [ -e tmp/model.onnx ] || ln -sf /opt/model.onnx tmp/model.onnx
 [ -e public/fonts/DancingScript-Regular.otf ] || ln -sf /fonts/DancingScript-Regular.otf public/fonts/
-ln -sf /usr/lib/libonnxruntime.so.1 "$(ruby -e "print Dir[Gem::Specification.find_by_name('onnxruntime').gem_dir + '/vendor/*.so'].first")" 2>/dev/null || true
+# Point the onnxruntime gem at Alpine's native library (gems live under BUNDLE_PATH, so ask bundler)
+ONNX_SO="$(bundle exec ruby -e "print Dir[Gem::Specification.find_by_name('onnxruntime').gem_dir + '/vendor/*.so'].first" 2>/dev/null || true)"
+if [ -n "$ONNX_SO" ]; then
+  ln -sf /usr/lib/libonnxruntime.so.1 "$ONNX_SO"
+fi
 
 if [ "${WELLO_PREPARE_DB:-false}" = "true" ]; then
   until pg_isready -h "${DATABASE_HOST:-db}" -U postgres >/dev/null 2>&1; do
