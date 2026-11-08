@@ -18,7 +18,8 @@ RSpec.describe Wello::Sms do
 
   it 'sends through the Twilio API' do
     stub = stub_request(:post, 'https://api.twilio.com/2010-04-01/Accounts/AC123/Messages.json')
-           .with(basic_auth: %w[AC123 secret], body: { 'To' => '+15551234567', 'From' => '+15550001111', 'Body' => 'Hi' })
+           .with(basic_auth: %w[AC123 secret],
+                 body: { 'To' => '+15551234567', 'From' => '+15550001111', 'Body' => 'Hi' })
            .to_return(status: 201, body: { sid: 'SM1', num_segments: '1' }.to_json)
 
     described_class.send_message(account, to: '555-123-4567', body: 'Hi')
@@ -27,7 +28,7 @@ RSpec.describe Wello::Sms do
   end
 
   it 'raises Twilio errors' do
-    stub_request(:post, %r{api.twilio.com}).to_return(status: 400, body: { message: 'Invalid From number' }.to_json)
+    stub_request(:post, /api\.twilio\.com/).to_return(status: 400, body: { message: 'Invalid From number' }.to_json)
 
     expect { described_class.send_message(account, to: '5551234567', body: 'Hi') }
       .to raise_error(described_class::Error, 'Invalid From number')
@@ -40,7 +41,8 @@ RSpec.describe Wello::Sms do
     submitter = submission.submitters.first
     submitter.update!(phone: '+15551234567', preferences: submitter.preferences.merge('send_sms' => true))
 
-    stub = stub_request(:post, %r{api.twilio.com}).to_return(status: 201, body: { sid: 'SM1', num_segments: '1' }.to_json)
+    stub = stub_request(:post, /api\.twilio\.com/)
+           .to_return(status: 201, body: { sid: 'SM1', num_segments: '1' }.to_json)
 
     WelloSendSubmitterInvitationSmsJob.new.perform('submitter_id' => submitter.id)
 

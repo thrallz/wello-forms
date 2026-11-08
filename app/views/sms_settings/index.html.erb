@@ -35,7 +35,7 @@
       <% end %>
       <div class="form-control">
         <%= label_tag :test_phone, "#{t('wello_sms_test_phone')} (#{t('optional')})", class: 'label' %>
-        <%= telephone_field_tag :test_phone, nil, class: 'base-input', placeholder: '+15551234567' %>
+        <%= telephone_field_tag :test_phone, nil, class: 'base-input', placeholder: '+15551234567', autocomplete: 'off' %>
       </div>
       <div class="form-control pt-2">
         <%= f.button button_title(title: t('save'), disabled_with: t('saving')), class: 'base-button' %>

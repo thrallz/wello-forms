@@ -16,8 +16,9 @@ class WelloVtigerSettingsController < ApplicationController
 
     @encrypted_config.update!(value:)
 
-    redirect_to settings_wello_vtiger_path,
-                notice: I18n.t('wello_vtiger_connected_as', name: user.is_a?(Hash) ? user['user_name'] || user['email1'] : value['username'])
+    name = user.is_a?(Hash) ? user['user_name'] || user['email1'] : value['username']
+
+    redirect_to settings_wello_vtiger_path, notice: I18n.t('wello_vtiger_connected_as', name:)
   rescue Wello::Vtiger::Error => e
     flash.now[:alert] = e.message
 

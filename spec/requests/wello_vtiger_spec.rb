@@ -11,7 +11,8 @@ RSpec.describe 'Wello Vtiger button' do
     stub_request(:get, "#{base}/describe?elementType=Accounts")
       .to_return(body: { success: true, result: { idPrefix: '11' } }.to_json)
     stub_request(:get, "#{base}/retrieve?id=11x42")
-      .to_return(body: { success: true, result: { id: '11x42', accountname: 'Lux Nails', email1: 'o@lux.test' } }.to_json)
+      .to_return(body: { success: true,
+                         result: { id: '11x42', accountname: 'Lux Nails', email1: 'o@lux.test' } }.to_json)
     sign_in(user)
   end
 
@@ -24,7 +25,8 @@ RSpec.describe 'Wello Vtiger button' do
   end
 
   it 'does not open clients assigned to other reps' do
-    WelloClient.create!(account:, dba_name: 'Lux', vtiger_id: '11x42', assigned_user: create(:user, account:, role: User::EMPLOYEE_ROLE))
+    other_rep = create(:user, account:, role: User::EMPLOYEE_ROLE)
+    WelloClient.create!(account:, dba_name: 'Lux', vtiger_id: '11x42', assigned_user: other_rep)
 
     get wello_vtiger_open_path(module: 'Accounts', record: '42')
 

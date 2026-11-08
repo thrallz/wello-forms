@@ -90,8 +90,14 @@ class WelloClientSendFormsController < ApplicationController
       phone: @wello_client.phone,
       send_email:,
       send_sms:,
-      values: params[:prefill] == '0' ? {} : Wello::ClientPrefill.values(@wello_client, @template, template_submitter['uuid'])
+      values: prefill_values(template_submitter['uuid'])
     }.compact_blank.merge(send_email:, send_sms:)
+  end
+
+  def prefill_values(submitter_uuid)
+    return {} if params[:prefill] == '0'
+
+    Wello::ClientPrefill.values(@wello_client, @template, submitter_uuid)
   end
 
   def other_submitter_attrs(template_submitter)
@@ -107,7 +113,9 @@ class WelloClientSendFormsController < ApplicationController
   def validate_channels!(send_email:, send_sms:)
     raise Wello::SendFormError, I18n.t('wello_client_has_no_email') if send_email && @wello_client.email.blank?
     raise Wello::SendFormError, I18n.t('wello_client_has_no_phone') if send_sms && @wello_client.phone.blank?
-    raise Wello::SendFormError, I18n.t('wello_sms_not_available') if send_sms && !Wello::Sms.configured?(current_account)
+    if send_sms && !Wello::Sms.configured?(current_account)
+      raise Wello::SendFormError, I18n.t('wello_sms_not_available')
+    end
     raise Wello::SendFormError, I18n.t('wello_choose_channel') unless send_email || send_sms
   end
 end

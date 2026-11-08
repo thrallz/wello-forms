@@ -45,13 +45,20 @@ class WelloClient < ApplicationRecord
   def self.search(query)
     return all if query.blank?
 
-    term = "%#{sanitize_sql_like(query.to_s.strip.downcase)}%"
+    term = "%#{sanitize_sql_like(query.to_s.strip)}%"
+    condition = SEARCH_COLUMNS.map { |column| arel_table[column].matches(term) }.reduce(:or)
+
     digits = query.to_s.gsub(/\D/, '')
 
-    conditions = SEARCH_COLUMNS.map { |column| "LOWER(wello_clients.#{column}) LIKE :term" }
-    conditions << "REGEXP_REPLACE(wello_clients.phone, '[^0-9]', '', 'g') LIKE :digits" if digits.length >= 3
+    if digits.length >= 3
+      phone_digits = Arel::Nodes::NamedFunction.new(
+        'REGEXP_REPLACE', [arel_table[:phone], Arel::Nodes.build_quoted('[^0-9]'),
+                           Arel::Nodes.build_quoted(''), Arel::Nodes.build_quoted('g')]
+      )
+      condition = condition.or(phone_digits.matches("%#{digits}%"))
+    end
 
-    where(conditions.join(' OR '), term:, digits: "%#{digits}%")
+    where(condition)
   end
 
   def display_name

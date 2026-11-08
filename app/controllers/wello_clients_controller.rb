@@ -77,7 +77,7 @@ class WelloClientsController < ApplicationController
       :address_line1, :address_line2, :city, :state, :zip, :notes, :assigned_user_id
     )
 
-    if permitted.key?(:assigned_user_id) && !assignable_user_ids.include?(permitted[:assigned_user_id].to_i)
+    if permitted.key?(:assigned_user_id) && assignable_user_ids.exclude?(permitted[:assigned_user_id].to_i)
       permitted.delete(:assigned_user_id)
     end
 

@@ -47,8 +47,8 @@
           <div class="border-t border-base-300 pt-4" data-role-uuid="<%= role['uuid'] %>">
             <div class="text-sm font-medium mb-2"><%= role['name'] %> <span class="opacity-60 font-normal"><%= t('wello_other_signer_hint') %></span></div>
             <div class="flex gap-3">
-              <%= text_field_tag "other_submitters[#{role['uuid']}][name]", role['uuid'] == first_other_uuid ? current_user.full_name : nil, placeholder: t('name'), class: 'base-input w-full', aria: { label: "#{role['name']} #{t('name')}" } %>
-              <%= email_field_tag "other_submitters[#{role['uuid']}][email]", role['uuid'] == first_other_uuid ? current_user.email : nil, placeholder: t('email'), class: 'base-input w-full', aria: { label: "#{role['name']} #{t('email')}" } %>
+              <%= text_field_tag "other_submitters[#{role['uuid']}][name]", role['uuid'] == first_other_uuid ? current_user.full_name : nil, placeholder: t('name'), class: 'base-input w-full', autocomplete: 'off', aria: { label: "#{role['name']} #{t('name')}" } %>
+              <%= email_field_tag "other_submitters[#{role['uuid']}][email]", role['uuid'] == first_other_uuid ? current_user.email : nil, placeholder: t('email'), class: 'base-input w-full', autocomplete: 'off', aria: { label: "#{role['name']} #{t('email')}" } %>
             </div>
           </div>
         <% end %>
