@@ -1,0 +1,26 @@
+# Wello Forms strings. Other locales fall back to English (config.i18n.fallbacks = [:en]).
+en:
+  manager: Manager
+  employee: Employee
+  client: Client
+  wello_role_manager: Manager
+  wello_role_employee: Employee
+  wello_role_client: Client
+  wello_team: Team
+  wello_teams: Teams
+  wello_no_team: No team
+  wello_new_team: New team
+  wello_team_name: Team name
+  wello_team_members: Members
+  wello_create_teams_in_settings: Create teams in Settings → Teams
+  wello_team_has_been_saved: Team has been saved
+  wello_team_has_been_removed: Team has been removed
+  wello_teams_description: Managers see templates and documents from everyone on their team. Employees see only their own.
+  wello_my_documents: My documents
+  wello_waiting_for_you: Waiting for your signature
+  wello_completed: Completed
+  wello_no_documents_yet: No documents yet. When Wello Payment sends you something to sign, it will show up here.
+  wello_sign_now: Sign now
+  wello_view: View
+  wello_sent_on: Sent %{date}
+  wello_completed_on: Completed %{date}

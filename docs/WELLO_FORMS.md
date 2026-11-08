@@ -69,17 +69,20 @@ docker compose -f docker-compose.dev.yml down -v       # stop and wipe DB/gems
 - Email templates and sender name; signing-page header logo.
 - Restyle (keep) DocuSeal attribution — see Licensing.
 
-### Phase 2 — User roles
-Open-source DocuSeal ships a single `admin` role (`User::ROLES`). Add:
+### Phase 2 — User roles ✅ (branch `feature/roles`)
 
-| Role | Can |
-|---|---|
-| `admin` | Everything, settings, users, integrations |
-| `manager` | All templates & submissions for their team, approve, reassign |
-| `employee` | Create/send from assigned templates, see own submissions |
-| `client` | Client portal only — their own documents to sign / download |
+| Role | Templates | Documents (submissions) | Settings |
+|---|---|---|---|
+| `admin` | All | All | Everything, users, teams |
+| `manager` | Use all; create; edit/delete own team's | Own team's | Own profile |
+| `employee` | Use all; create; edit/delete own | Own only | Own profile |
+| `client` | — | Client portal (`/portal`): documents sent to their email | Own profile |
 
-Implement via `User::ROLES`, the CanCanCan `Ability` class (`lib/ability.rb`), and a `team_id` on users/submissions.
+- Teams: Settings → Teams (admins). Assign role + team when adding/editing a user.
+- A manager with no team sees only their own documents.
+- Documents created by API/automation (no creator) are visible to admins only.
+- Code: `lib/ability.rb` (rules), `app/models/wello_team.rb`, `app/controllers/concerns/wello_client_access.rb`, `app/controllers/wello_portal_controller.rb`.
+- Tests: `docker compose -f docker-compose.dev.yml exec app bin/wello-spec spec/lib/wello_ability_spec.rb spec/requests/wello_roles_spec.rb`
 
 ### Phase 3 — Client dashboard, employee workflow, document history
 - **Client dashboard** (`/portal`): pending to sign, completed (download), history; magic-link or password login.

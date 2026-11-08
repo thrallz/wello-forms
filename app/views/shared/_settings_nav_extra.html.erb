@@ -1,0 +1,5 @@
+<% if can?(:manage, WelloTeam.new(account: current_account)) %>
+  <li>
+    <%= link_to t('wello_teams'), settings_wello_teams_path, class: 'text-base hover:bg-base-300', data: local_assigns[:nav_link_data] %>
+  </li>
+<% end %>

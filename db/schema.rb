@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_catalog.plpgsql"
@@ -550,11 +550,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_120000) do
     t.string "unlock_token"
     t.datetime "updated_at", null: false
     t.string "uuid", null: false
+    t.bigint "wello_team_id"
     t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
     t.index ["uuid"], name: "index_users_on_uuid", unique: true
+    t.index ["wello_team_id"], name: "index_users_on_wello_team_id"
   end
 
   create_table "webhook_attempts", force: :cascade do |t|
@@ -593,6 +595,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_120000) do
     t.text "url", null: false
     t.index ["account_id"], name: "index_webhook_urls_on_account_id"
     t.index ["sha1"], name: "index_webhook_urls_on_sha1"
+  end
+
+  create_table "wello_teams", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_wello_teams_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_wello_teams_on_account_id"
   end
 
   add_foreign_key "access_tokens", "users"
@@ -637,5 +648,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_120000) do
   add_foreign_key "templates", "users", column: "author_id"
   add_foreign_key "user_configs", "users"
   add_foreign_key "users", "accounts"
+  add_foreign_key "users", "wello_teams"
   add_foreign_key "webhook_urls", "accounts"
+  add_foreign_key "wello_teams", "accounts"
 end

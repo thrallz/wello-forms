@@ -1,0 +1,41 @@
+<div class="flex-wrap space-y-4 md:flex md:flex-nowrap md:space-y-0 md:space-x-10">
+  <%= render 'shared/settings_nav' %>
+  <div class="md:flex-grow">
+    <h1 class="text-3xl md:text-4xl font-bold mb-2"><%= t('wello_teams') %></h1>
+    <p class="mb-6 opacity-70"><%= t('wello_teams_description') %></p>
+
+    <%= form_with model: @team, url: settings_wello_teams_path, class: 'flex gap-2 mb-8 max-w-lg' do |f| %>
+      <%= f.text_field :name, required: true, placeholder: t('wello_team_name'), class: 'base-input w-full', dir: 'auto' %>
+      <%= f.button t('wello_new_team'), class: 'btn btn-neutral' %>
+    <% end %>
+
+    <% if @teams.empty? %>
+      <p class="opacity-70"><%= t('wello_no_team') %></p>
+    <% else %>
+      <div class="space-y-3">
+        <% @teams.each do |team| %>
+          <div class="border border-base-300 rounded-2xl p-4">
+            <div class="flex items-center gap-2">
+              <%= form_with model: team, url: settings_wello_team_path(team), method: :patch, class: 'flex gap-2 flex-grow' do |f| %>
+                <%= f.text_field :name, required: true, class: 'base-input w-full max-w-sm', dir: 'auto' %>
+                <%= f.button t('save'), class: 'btn btn-primary btn-sm self-center' %>
+              <% end %>
+              <%= button_to t('remove'), settings_wello_team_path(team), method: :delete, class: 'btn btn-ghost btn-sm', form: { data: { turbo_confirm: t('are_you_sure_') } } %>
+            </div>
+            <div class="mt-3 text-sm">
+              <span class="font-semibold"><%= t('wello_team_members') %>:</span>
+              <% members = team.users.select { |u| u.archived_at.nil? } %>
+              <% if members.empty? %>
+                <span class="opacity-60">—</span>
+              <% else %>
+                <% members.each do |user| %>
+                  <span class="badge badge-outline badge-sm mr-1"><%= user.full_name.presence || user.email %> · <%= t(user.role) %></span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

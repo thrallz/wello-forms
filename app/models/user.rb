@@ -48,7 +48,11 @@
 #
 class User < ApplicationRecord
   ROLES = [
-    ADMIN_ROLE = 'admin'
+    ADMIN_ROLE = 'admin',
+    # Wello Forms roles (see lib/ability.rb)
+    MANAGER_ROLE = 'manager',
+    EMPLOYEE_ROLE = 'employee',
+    CLIENT_ROLE = 'client'
   ].freeze
 
   EMAIL_REGEXP = /[^@;,<>\s]+@[^@;,<>\s]+/
@@ -60,6 +64,7 @@ class User < ApplicationRecord
   has_one_attached :initials
 
   belongs_to :account
+  belongs_to :wello_team, optional: true
   has_one :access_token, dependent: :destroy
   has_many :access_tokens, dependent: :destroy
   has_many :mcp_tokens, dependent: :destroy
@@ -103,6 +108,27 @@ class User < ApplicationRecord
       !PasswordsController::Current.user.otp_required_for_login
     else
       true
+    end
+  end
+
+  def wello_manager?
+    role == MANAGER_ROLE
+  end
+
+  def wello_employee?
+    role == EMPLOYEE_ROLE
+  end
+
+  def wello_client?
+    role == CLIENT_ROLE
+  end
+
+  # Users whose documents this user can see: the whole team for managers, only themselves otherwise.
+  def wello_visible_user_ids
+    if wello_manager? && wello_team_id
+      User.where(account_id:, wello_team_id:).pluck(:id)
+    else
+      [id]
     end
   end
 

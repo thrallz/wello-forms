@@ -181,6 +181,8 @@ Rails.application.routes.draw do
 
   resources :settings, only: %i[index]
 
+  get 'portal', to: 'wello_portal#index', as: :wello_portal
+
   scope '/settings', as: :settings do
     unless Docuseal.multitenant?
       resources :storage, only: %i[index create], controller: 'storage_settings'
@@ -197,6 +199,7 @@ Rails.application.routes.draw do
     resources :notifications, only: %i[index create], controller: 'notifications_settings'
     resource :esign, only: %i[show create new update destroy], controller: 'esign_settings'
     resources :users, only: %i[index]
+    resources :wello_teams, only: %i[index create update destroy], path: 'teams'
     resources :archived_users, only: %i[index], path: 'users/:status', controller: 'users',
                                defaults: { status: :archived }
     resources :integration_users, only: %i[index], path: 'users/:status', controller: 'users',

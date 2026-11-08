@@ -45,7 +45,7 @@ class UsersController < ApplicationController
     if existing_user
       if existing_user.archived_at? &&
          current_ability.can?(:manage, existing_user) && current_ability.can?(:manage, @user.account)
-        existing_user.assign_attributes(@user.slice(:first_name, :last_name, :role, :account_id))
+        existing_user.assign_attributes(@user.slice(:first_name, :last_name, :role, :account_id, :wello_team_id))
         existing_user.archived_at = nil
         @user = existing_user
       else
@@ -71,6 +71,7 @@ class UsersController < ApplicationController
     return redirect_to settings_users_path, notice: I18n.t('unable_to_update_user') if Docuseal.demo?
 
     attrs = user_params.compact_blank
+    attrs = attrs.merge(user_params.slice(:wello_team_id)) if user_params.key?(:wello_team_id)
     attrs = attrs.merge(user_params.slice(:archived_at)) if current_ability.can?(:create, @user)
 
     if params.dig(:user, :account_id).present?
@@ -113,6 +114,12 @@ class UsersController < ApplicationController
     User::ROLES.include?(role)
   end
 
+  def wello_team_valid?(team_id)
+    return false unless current_ability.can?(:manage, current_account)
+
+    team_id.blank? || WelloTeam.exists?(id: team_id, account_id: current_account.id)
+  end
+
   def build_user
     @user = current_account.users.new(user_params)
   end
@@ -122,6 +129,7 @@ class UsersController < ApplicationController
       permitted_params = %i[email first_name last_name password archived_at otp_required_for_login]
 
       permitted_params << :role if role_valid?(params.dig(:user, :role))
+      permitted_params << :wello_team_id if wello_team_valid?(params.dig(:user, :wello_team_id))
 
       params.require(:user).permit(permitted_params)
     else

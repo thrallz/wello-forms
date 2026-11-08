@@ -1,0 +1,9 @@
+#!/bin/sh
+# Run RSpec inside the dev container against a separate test database,
+# so your development data is never touched.
+#   docker compose -f docker-compose.dev.yml exec app bin/wello-spec spec/lib/wello_ability_spec.rb
+set -e
+export RAILS_ENV=test
+export DATABASE_URL="$(echo "${DATABASE_URL:?}" | sed 's#/[^/]*$#/wello_forms_test#')"
+bundle exec rails db:prepare >/dev/null
+exec bundle exec rspec "$@"

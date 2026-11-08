@@ -1,22 +1,25 @@
+<% roles = [
+     ['admin', t('admin'), 'Full access: settings, users, every document'],
+     ['manager', t('wello_role_manager', default: 'Manager'), "Own team's templates and documents"],
+     ['employee', t('wello_role_employee', default: 'Employee'), 'Sends any template; sees only own documents'],
+     ['client', t('wello_role_client', default: 'Client'), 'Client portal only: documents sent to their email']
+   ] %>
 <div class="form-control">
   <%= f.label :role, class: 'label' %>
-  <%= f.select :role, nil, {}, class: 'base-select' do %>
-    <option value="admin"><%= t('admin') %></option>
-    <option value="editor" disabled><%= t('editor') %></option>
-    <option value="viewer" disabled><%= t('viewer') %></option>
-  <% end %>
-  <% if Docuseal.multitenant? %>
-    <label class="label">
-      <span class="label-text-alt">
-        <%= t('click_here_to_learn_more_about_user_roles_and_permissions_html') %>
-      </span>
-    </label>
-  <% end %>
-  <% unless turbo_native_app? %>
-    <a class="text-sm mt-3 px-4 py-2 bg-base-300 rounded-full block" target="_blank" href="<%= Docuseal.multitenant? ? console_redirect_index_path(redir: "#{Docuseal::CONSOLE_URL}/plans") : "#{Docuseal::CLOUD_URL}/sign_up?#{{ redir: "#{Docuseal::CONSOLE_URL}/on_premises" }.to_query}" %>">
-      <%= svg_icon('info_circle', class: 'w-4 h-4 inline align-text-bottom') %>
-      <%= t('unlock_more_user_roles_with_docuseal_pro') %>
-      <span class="link font-medium"><%= t('learn_more') %></span>
-    </a>
+  <%= f.select :role, roles.map { |value, label, _| [label, value] }, {}, class: 'base-select' %>
+  <ul class="text-xs mt-2 mx-1 space-y-0.5 opacity-70">
+    <% roles.each do |_, label, description| %>
+      <li><span class="font-semibold"><%= label %>:</span> <%= description %></li>
+    <% end %>
+  </ul>
+</div>
+<% teams = current_account ? WelloTeam.where(account: current_account).ordered : WelloTeam.none %>
+<div class="form-control">
+  <%= f.label :wello_team_id, t('wello_team', default: 'Team'), class: 'label' %>
+  <%= f.select :wello_team_id, teams.map { |team| [team.name, team.id] }, { include_blank: t('wello_no_team', default: 'No team') }, class: 'base-select' %>
+  <% if teams.empty? %>
+    <span class="label-text-alt mt-2 mx-1">
+      <%= link_to t('wello_create_teams_in_settings', default: 'Create teams in Settings → Teams'), settings_wello_teams_path, class: 'link', data: { turbo_frame: :_top } %>
+    </span>
   <% end %>
 </div>

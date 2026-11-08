@@ -19,12 +19,16 @@
         </span>
       <% else %>
         <div class="flex items-center justify-center space-x-4 mr-1">
-          <%= render 'shared/navbar_buttons' %>
+          <% if current_user.wello_client? %>
+            <%= link_to t('wello_my_documents'), wello_portal_path, class: 'font-medium text-lg' %>
+          <% else %>
+            <%= render 'shared/navbar_buttons' %>
+          <% end %>
           <%= link_to t('settings'), settings_profile_index_path, class: 'hidden md:inline-flex font-medium text-lg', id: 'account_settings_button' %>
         </div>
       <% end %>
       <div class="dropdown dropdown-end">
-        <label tabindex="0" class="cursor-pointer bg-base-content text-purple-300 rounded-full p-2 w-9 justify-center flex">
+        <label tabindex="0" class="cursor-pointer bg-base-content text-secondary rounded-full p-2 w-9 justify-center flex">
           <span class="text-sm align-text-top"><%= current_user.initials %></span>
         </label>
         <ul tabindex="0" class="z-10 dropdown-content p-2 mt-2 shadow menu text-base bg-base-100 rounded-box text-right" style="min-width: 160px;">

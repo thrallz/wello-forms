@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
 
   include ActiveStorage::SetCurrent
   include Pagy::Method
+  include WelloClientAccess
 
   check_authorization unless: :devise_controller?
 

@@ -1,0 +1,43 @@
+<% content_for(:html_title, t('wello_my_documents')) %>
+<div class="max-w-3xl mx-auto px-4">
+  <h1 class="text-3xl md:text-4xl font-bold mb-1"><%= t('wello_my_documents') %></h1>
+  <p class="mb-8 opacity-70"><%= current_user.full_name.presence || current_user.email %></p>
+
+  <% if @pending.empty? && @completed.empty? %>
+    <div class="rounded-2xl bg-base-200 p-8 text-center opacity-80">
+      <%= t('wello_no_documents_yet') %>
+    </div>
+  <% end %>
+
+  <% if @pending.any? %>
+    <h2 class="text-xl font-bold mb-3"><%= t('wello_waiting_for_you') %></h2>
+    <div class="space-y-3 mb-10">
+      <% @pending.each do |submitter| %>
+        <div class="flex items-center justify-between gap-4 rounded-2xl border-2 border-secondary p-4">
+          <div class="min-w-0">
+            <div class="font-semibold truncate"><%= submitter.submission.name.presence || submitter.submission.template&.name %></div>
+            <% if submitter.sent_at %>
+              <div class="text-sm opacity-70"><%= t('wello_sent_on', date: l(submitter.sent_at.to_date, format: :long)) %></div>
+            <% end %>
+          </div>
+          <%= link_to t('wello_sign_now'), submit_form_path(slug: submitter.slug), class: 'btn btn-secondary shrink-0' %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @completed.any? %>
+    <h2 class="text-xl font-bold mb-3"><%= t('wello_completed') %></h2>
+    <div class="space-y-3">
+      <% @completed.each do |submitter| %>
+        <div class="flex items-center justify-between gap-4 rounded-2xl border border-base-300 p-4">
+          <div class="min-w-0">
+            <div class="font-semibold truncate"><%= submitter.submission.name.presence || submitter.submission.template&.name %></div>
+            <div class="text-sm opacity-70"><%= t('wello_completed_on', date: l(submitter.completed_at.to_date, format: :long)) %></div>
+          </div>
+          <%= link_to t('wello_view'), submit_form_path(slug: submitter.slug), class: 'btn btn-primary btn-sm shrink-0' %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
