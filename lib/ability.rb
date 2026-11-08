@@ -4,8 +4,11 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    return wello_client_abilities(user) if user.wello_client?
-    return wello_staff_abilities(user) if user.wello_manager? || user.wello_employee?
+    if user.wello_client? || user.wello_manager? || user.wello_employee?
+      wello_abilities(user)
+
+      return
+    end
 
     can %i[read create update], Template, Abilities::TemplateConditions.collection(user) do |template|
       Abilities::TemplateConditions.entity(template, user:, ability: 'manage')
@@ -26,11 +29,20 @@ class Ability
     can :manage, McpToken, user_id: user.id
     can :manage, WebhookUrl, account_id: user.account_id
     can :manage, WelloTeam, account_id: user.account_id
+    can :manage, WelloClient, account_id: user.account_id
 
     can :manage, :mcp
   end
 
   private
+
+  def wello_abilities(user)
+    if user.wello_client?
+      wello_client_abilities(user)
+    else
+      wello_staff_abilities(user)
+    end
+  end
 
   # Wello Forms: managers and employees.
   # - Can use (read/send) every template in the account and create their own.
@@ -58,6 +70,9 @@ class Ability
     can :manage, User, id: user.id
 
     can :read, Account, id: user.account_id
+
+    can :create, WelloClient, account_id: user.account_id
+    can :manage, WelloClient, account_id: user.account_id, assigned_user_id: user_ids
 
     can :manage, EncryptedUserConfig, user_id: user.id
     can :manage, UserConfig, user_id: user.id

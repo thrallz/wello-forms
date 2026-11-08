@@ -43,6 +43,7 @@
 #
 class Submission < ApplicationRecord
   belongs_to :template, optional: true
+  belongs_to :wello_client, optional: true
   belongs_to :account
   belongs_to :created_by_user, class_name: 'User', optional: true
 

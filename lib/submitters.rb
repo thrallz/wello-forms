@@ -185,6 +185,8 @@ module Submitters
 
   def send_signature_requests(submitters, delay_seconds: nil)
     submitters.each_with_index do |submitter, index|
+      Wello::Sms.enqueue_invitation(submitter, delay_seconds: delay_seconds && (delay_seconds + index).seconds)
+
       next if submitter.email.blank?
       next if submitter.declined_at?
       next if submitter.preferences['send_email'] == false

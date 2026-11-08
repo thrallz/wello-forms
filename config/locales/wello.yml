@@ -24,3 +24,98 @@ en:
   wello_view: View
   wello_sent_on: Sent %{date}
   wello_completed_on: Completed %{date}
+  # Clients
+  wello_clients: Clients
+  wello_archived_clients: Archived clients
+  wello_new_client: New client
+  wello_edit_client: Edit client
+  wello_search_clients: Search name, email, phone or MID
+  wello_no_clients_yet: No clients yet. Add your first client to start sending forms.
+  wello_no_clients_match: No clients match "%{query}".
+  wello_view_archived_clients: View archived clients
+  wello_view_active_clients: View active clients
+  wello_client_has_been_saved: Client has been saved
+  wello_business: Business
+  wello_contact: Contact
+  wello_documents: Documents
+  wello_dba_name: Business name (DBA)
+  wello_legal_name: Legal business name
+  wello_merchant_id: Merchant ID (MID)
+  wello_address: Business address
+  wello_street: Street address
+  wello_suite: Suite / unit
+  wello_city: City
+  wello_state: State
+  wello_zip: ZIP
+  wello_notes: Notes
+  wello_assigned_rep: Assigned rep
+  wello_send: Send
+  wello_send_form: Send a form
+  wello_in_progress: In progress
+  wello_nothing_waiting: Nothing waiting on signatures.
+  wello_signed_documents: Signed documents
+  wello_no_signed_documents: No signed documents yet.
+  wello_document: Document
+  wello_sent_by_on: Sent by %{name} on %{date}
+  wello_status_completed: Signed
+  wello_status_declined: Declined
+  wello_status_opened: Opened
+  wello_status_sent: Sent
+  wello_status_awaiting: Waiting
+  # Send flow
+  wello_send_form_to: Send a form to %{name}
+  wello_step_choose_template: 1. Choose a template
+  wello_select_template: Select a template…
+  wello_next: Next
+  wello_no_templates_yet: No templates yet. Upload a PDF on the dashboard first.
+  wello_step_recipients: 2. Who signs
+  wello_client_signs_as: The client signs as
+  wello_no_contact_details: No email or phone on file
+  wello_other_signer_hint: "(leave email blank to skip this signer)"
+  wello_sign_in_order: Sign in order (next signer is notified after the previous one signs)
+  wello_step_send_via: 3. Send the signing link by
+  wello_sms_not_set_up_hint: SMS is not set up. An admin can connect Twilio in Settings → SMS.
+  wello_step_prefill: 4. Fill in the client's details
+  wello_prefill_fields:
+    one: Pre-fill %{count} field from the client record
+    other: Pre-fill %{count} fields from the client record
+  wello_prefill_none: No template fields match client details. Name fields like "DBA", "Merchant ID" or "Address" to fill them automatically.
+  wello_send_for_signing: Send for signing
+  wello_form_sent: The form has been sent
+  wello_missing_recipient: The client needs an email or phone number
+  wello_client_has_no_email: This client has no email address
+  wello_client_has_no_phone: This client has no phone number
+  wello_choose_channel: Choose email, SMS, or both
+  # SMS
+  wello_sms_settings_description: Send signing links by text message using your own Twilio account.
+  wello_sms_connected: Twilio is connected. Signing links can be sent by SMS.
+  wello_sms_from_number: From number
+  wello_sms_from_hint: Use a Twilio phone number in +1 format, or a Messaging Service SID (recommended for US A2P 10DLC).
+  wello_sms_test_phone: Send a test SMS to
+  wello_sms_test_message: "%{account}: test message from Wello Forms. SMS is working."
+  wello_sms_test_sent: Settings saved and test SMS sent
+  wello_sms_fields_required: Account SID, Auth Token and a From number or Messaging Service SID are required
+  wello_sms_disconnect: Disconnect Twilio
+  wello_sms_invitation: '%{account} sent you "%{document}" to sign: %{link}'
+  wello_sms_sent: SMS has been sent
+  wello_sms_not_available: SMS is not set up or the signer has no phone number
+  wello_set_up_sms: Set up SMS
+  # Vtiger
+  wello_vtiger_settings_description: Open Wello Forms from Vtiger records, pull client details from Vtiger, and post a note back when a document is signed.
+  wello_vtiger_connected: Vtiger is connected.
+  wello_vtiger_url: Vtiger URL
+  wello_vtiger_username: Username
+  wello_vtiger_access_key: Access key
+  wello_vtiger_access_key_hint: In Vtiger, open your user menu → My Preferences to find your username and access key. Use an account that can see the records your team works with.
+  wello_vtiger_mid_field: Merchant ID custom field name
+  wello_save_and_test: Save and test connection
+  wello_disconnect: Disconnect
+  wello_vtiger_connected_as: Connected to Vtiger as %{name}
+  wello_vtiger_button_title: Add a "Wello Forms" button in Vtiger
+  wello_vtiger_button_steps: In Vtiger go to Menu → Platform → Module Designer → UI Actions, add a "Detail View Basic Button" for Organizations, Contacts, Leads or Deals, and paste this as the click action.
+  wello_vtiger_button_modules: Supported modules are Organizations (Accounts), Contacts, Leads and Deals (Potentials). Contacts and deals linked to an organization are filed under that organization.
+  wello_vtiger_not_configured: Vtiger is not connected yet. An admin can set it up in Settings → Vtiger.
+  wello_client_assigned_to_someone_else: This client is assigned to %{name}. Ask them or your manager to send the form.
+  wello_client_synced: Client details updated from Vtiger
+  wello_sync_from_vtiger: Sync from Vtiger
+  wello_vtiger_completed_note: '"%{document}" was signed in Wello Forms: %{link}'

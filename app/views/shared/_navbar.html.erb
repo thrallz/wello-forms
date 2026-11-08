@@ -23,6 +23,9 @@
             <%= link_to t('wello_my_documents'), wello_portal_path, class: 'font-medium text-lg' %>
           <% else %>
             <%= render 'shared/navbar_buttons' %>
+            <% if can?(:read, WelloClient.new(account: current_account, assigned_user: current_user)) %>
+              <%= link_to t('wello_clients'), wello_clients_path, class: 'hidden md:inline-flex font-medium text-lg' %>
+            <% end %>
           <% end %>
           <%= link_to t('settings'), settings_profile_index_path, class: 'hidden md:inline-flex font-medium text-lg', id: 'account_settings_button' %>
         </div>

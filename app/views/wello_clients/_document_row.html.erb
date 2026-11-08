@@ -1,0 +1,29 @@
+<% submitters = submission.submitters.sort_by(&:id) %>
+<% declined = submitters.any?(&:declined_at?) %>
+<% status = submission.completed_at? ? 'completed' : (declined ? 'declined' : (submitters.any?(&:opened_at?) ? 'opened' : 'sent')) %>
+<% badge = { 'completed' => 'badge-accent', 'declined' => 'badge-error', 'opened' => 'badge-secondary', 'sent' => 'badge-ghost' }[status] %>
+<div class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 p-4">
+  <div class="min-w-0 flex-1">
+    <div class="flex items-center gap-2">
+      <%= link_to submission.name.presence || submission.template&.name || t('wello_document'), submission_path(submission), class: 'font-semibold link link-hover truncate', data: { turbo_frame: :_top } %>
+      <span class="badge badge-sm <%= badge %>"><%= t("wello_status_#{status}") %></span>
+    </div>
+    <div class="text-sm opacity-70 mt-1">
+      <%= t('wello_sent_by_on', name: submission.created_by_user&.full_name.presence || submission.created_by_user&.email || 'API', date: l(submission.created_at.to_date, format: :long)) %>
+      <% if submission.completed_at? %>
+        · <%= t('wello_completed_on', date: l(submission.completed_at.to_date, format: :long)) %>
+      <% end %>
+    </div>
+    <div class="text-xs opacity-60 mt-1">
+      <%= submitters.map { |s| "#{s.name.presence || s.email || s.phone}: #{t("wello_status_#{s.status}", default: s.status)}" }.join(' · ') %>
+    </div>
+  </div>
+  <div class="flex gap-2 shrink-0">
+    <%= link_to t('wello_view'), submission_path(submission), class: 'btn btn-sm btn-primary', data: { turbo_frame: :_top } %>
+    <% if submission.completed_at? %>
+      <%= link_to submissions_preview_path(submission.slug), class: 'btn btn-sm btn-ghost gap-1', target: '_blank', rel: 'noopener', title: t('download') do %>
+        <%= svg_icon('download', class: 'w-4 h-4') %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

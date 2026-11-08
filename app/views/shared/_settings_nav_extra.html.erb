@@ -3,3 +3,8 @@
     <%= link_to t('wello_teams'), settings_wello_teams_path, class: 'text-base hover:bg-base-300', data: local_assigns[:nav_link_data] %>
   </li>
 <% end %>
+<% if can?(:manage, EncryptedConfig.new(account: current_account, key: Wello::Vtiger::CONFIG_KEY)) %>
+  <li>
+    <%= link_to 'Vtiger', settings_wello_vtiger_path, class: 'text-base hover:bg-base-300', data: local_assigns[:nav_link_data] %>
+  </li>
+<% end %>

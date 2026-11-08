@@ -1,0 +1,54 @@
+<div class="flex flex-wrap space-y-4 md:flex-nowrap md:space-y-0">
+  <%= render 'shared/settings_nav' %>
+  <div class="flex-grow max-w-xl mx-auto min-w-0">
+    <h1 class="text-3xl md:text-4xl font-bold mb-2">Vtiger</h1>
+    <p class="mb-6 opacity-70"><%= t('wello_vtiger_settings_description') %></p>
+    <% value = @encrypted_config.value.is_a?(Hash) ? @encrypted_config.value : {} %>
+    <% if Wello::Vtiger.configured?(current_account) %>
+      <div class="alert mb-4">
+        <%= svg_icon('circle_check', class: 'w-6 h-6 text-accent') %>
+        <span><%= t('wello_vtiger_connected') %></span>
+      </div>
+    <% end %>
+    <%= form_for @encrypted_config, url: settings_wello_vtiger_path, method: :post, html: { autocomplete: 'off', class: 'space-y-4' } do |f| %>
+      <%= f.fields_for :value do |ff| %>
+        <div class="form-control">
+          <%= ff.label :url, t('wello_vtiger_url'), class: 'label' %>
+          <%= ff.text_field :url, value: value['url'], required: true, class: 'base-input', placeholder: 'https://yourcompany.od2.vtiger.com' %>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <%= ff.label :username, t('wello_vtiger_username'), class: 'label' %>
+            <%= ff.text_field :username, value: value['username'], required: true, class: 'base-input' %>
+          </div>
+          <div class="form-control">
+            <%= ff.label :access_key, t('wello_vtiger_access_key'), class: 'label' %>
+            <%= ff.password_field :access_key, class: 'base-input', required: value['access_key'].blank?, placeholder: value['access_key'].present? ? '*************' : '' %>
+          </div>
+        </div>
+        <p class="text-xs opacity-60"><%= t('wello_vtiger_access_key_hint') %></p>
+        <div class="form-control">
+          <%= ff.label :mid_field, "#{t('wello_vtiger_mid_field')} (#{t('optional')})", class: 'label' %>
+          <%= ff.text_field :mid_field, value: value['mid_field'], class: 'base-input', placeholder: 'cf_accounts_mid' %>
+        </div>
+      <% end %>
+      <div class="form-control pt-2">
+        <%= f.button button_title(title: t('wello_save_and_test'), disabled_with: t('saving')), class: 'base-button' %>
+      </div>
+    <% end %>
+    <% if @encrypted_config.persisted? %>
+      <div class="mt-4 text-center">
+        <%= button_to t('wello_disconnect'), settings_wello_vtiger_path, method: :delete, class: 'link text-sm opacity-70', form: { data: { turbo_confirm: t('are_you_sure_') } } %>
+      </div>
+    <% end %>
+
+    <div class="mt-10 space-y-3">
+      <h2 class="text-xl font-bold"><%= t('wello_vtiger_button_title') %></h2>
+      <p class="text-sm opacity-80"><%= t('wello_vtiger_button_steps') %></p>
+      <% open_url = wello_vtiger_open_url(**Docuseal.default_url_options) %>
+      <pre class="bg-base-200 rounded-xl p-4 text-xs overflow-x-auto whitespace-pre-wrap select-all">window.open('<%= open_url %>?module=' + VTAP.Detail.Module() + '&record=' + VTAP.Detail.Id(), '_blank');</pre>
+      <p class="text-xs opacity-60"><%= t('wello_vtiger_button_modules') %></p>
+    </div>
+  </div>
+  <div class="w-0 lg:w-52"></div>
+</div>

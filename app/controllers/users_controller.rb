@@ -6,6 +6,8 @@ class UsersController < ApplicationController
   before_action :build_user, only: %i[new create]
   authorize_resource :user, only: %i[new create]
 
+  before_action :wello_assign_team, only: %i[update]
+
   def index
     @users =
       if params[:status] == 'archived'
@@ -71,7 +73,6 @@ class UsersController < ApplicationController
     return redirect_to settings_users_path, notice: I18n.t('unable_to_update_user') if Docuseal.demo?
 
     attrs = user_params.compact_blank
-    attrs = attrs.merge(user_params.slice(:wello_team_id)) if user_params.key?(:wello_team_id)
     attrs = attrs.merge(user_params.slice(:archived_at)) if current_ability.can?(:create, @user)
 
     if params.dig(:user, :account_id).present?
@@ -112,6 +113,13 @@ class UsersController < ApplicationController
 
   def role_valid?(role)
     User::ROLES.include?(role)
+  end
+
+  # Lets admins clear a user's team (compact_blank in #update would drop the blank value).
+  def wello_assign_team
+    return unless user_params.key?(:wello_team_id)
+
+    @user.wello_team_id = user_params[:wello_team_id].presence
   end
 
   def wello_team_valid?(team_id)

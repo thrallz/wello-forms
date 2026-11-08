@@ -1,0 +1,71 @@
+<% content_for(:html_title, t('wello_clients')) %>
+<div class="max-w-6xl mx-auto px-4 md:px-2">
+  <div class="flex flex-wrap items-center gap-3 mb-6">
+    <h1 class="text-3xl md:text-4xl font-bold mr-auto"><%= params[:status] == 'archived' ? t('wello_archived_clients') : t('wello_clients') %></h1>
+    <%= form_with url: wello_clients_path, method: :get, class: 'flex gap-2', data: { turbo_frame: :_top } do %>
+      <%= hidden_field_tag :status, params[:status] if params[:status].present? %>
+      <%= search_field_tag :q, params[:q], placeholder: t('wello_search_clients'), class: 'base-input w-64 md:w-80', autocomplete: 'off', aria: { label: t('wello_search_clients') } %>
+      <button class="btn btn-primary" type="submit"><%= svg_icon('search', class: 'w-5 h-5') %></button>
+    <% end %>
+    <% if can?(:create, WelloClient.new(account: current_account)) %>
+      <%= link_to new_wello_client_path, class: 'btn btn-neutral gap-2', data: { turbo_frame: 'modal' } do %>
+        <%= svg_icon('plus', class: 'w-5 h-5') %>
+        <span><%= t('wello_new_client') %></span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @wello_clients.empty? %>
+    <div class="rounded-2xl bg-base-200 p-10 text-center">
+      <% if params[:q].present? %>
+        <p class="opacity-70"><%= t('wello_no_clients_match', query: params[:q]) %></p>
+      <% else %>
+        <p class="opacity-70"><%= t('wello_no_clients_yet') %></p>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead class="bg-base-200">
+          <tr>
+            <th><%= t('wello_business') %></th>
+            <th><%= t('wello_contact') %></th>
+            <th><%= t('wello_merchant_id') %></th>
+            <th><%= t('wello_assigned_rep') %></th>
+            <th class="text-right"><%= t('wello_documents') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @wello_clients.each do |client| %>
+            <tr class="hover:bg-base-200/50">
+              <td>
+                <%= link_to client.display_name, wello_client_path(client), class: 'font-semibold link link-hover' %>
+                <% if client.legal_name.present? && client.dba_name.present? %>
+                  <div class="text-xs opacity-60"><%= client.legal_name %></div>
+                <% end %>
+              </td>
+              <td>
+                <div><%= client.contact_name %></div>
+                <div class="text-xs opacity-60"><%= [client.email, client.phone].compact_blank.join(' · ') %></div>
+              </td>
+              <td class="font-mono text-sm"><%= client.merchant_id %></td>
+              <td class="text-sm"><%= client.assigned_user&.full_name.presence || client.assigned_user&.email %></td>
+              <td class="text-right">
+                <span class="mr-2"><%= @document_counts[client.id] || 0 %></span>
+                <%= link_to new_wello_client_send_form_path(client), class: 'btn btn-xs btn-secondary gap-1', title: t('wello_send_form') do %>
+                  <%= svg_icon('send', class: 'w-3 h-3') %>
+                  <span class="hidden lg:inline"><%= t('wello_send') %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <div class="mt-4">
+    <% archived_link = link_to(params[:status] == 'archived' ? t('wello_view_active_clients') : t('wello_view_archived_clients'), wello_clients_path(status: params[:status] == 'archived' ? nil : 'archived'), class: 'link text-sm') %>
+    <%= render 'shared/pagination', pagy: @pagy, items_name: 'wello_clients', left_additional_html: archived_link %>
+  </div>
+</div>

@@ -15,6 +15,8 @@ module Wello
     teal: '#0E7490'
   }.freeze
 
+  SendFormError = Class.new(StandardError)
+
   module_function
 
   def brand_name

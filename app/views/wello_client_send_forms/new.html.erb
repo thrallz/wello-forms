@@ -1,0 +1,103 @@
+<% content_for(:html_title, t('wello_send_form')) %>
+<div class="max-w-2xl mx-auto px-4">
+  <div class="text-sm mb-3">
+    <%= link_to "← #{@wello_client.display_name}", wello_client_path(@wello_client), class: 'link link-hover opacity-70' %>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold mb-6"><%= t('wello_send_form_to', name: @wello_client.display_name) %></h1>
+
+  <div class="rounded-2xl bg-base-200 p-5 mb-6">
+    <div class="text-sm font-semibold mb-2"><%= t('wello_step_choose_template') %></div>
+    <% roles = @template&.submitters || [] %>
+    <% client_uuid = roles.find { |r| r['uuid'] == params[:client_role_uuid] }&.dig('uuid') || roles.first&.dig('uuid') %>
+    <%= form_with url: new_wello_client_send_form_path(@wello_client), method: :get, class: 'space-y-3', data: { turbo_frame: :_top } do %>
+      <submit-form data-on="change" class="block">
+        <%= select_tag :template_id,
+                       options_for_select(@templates.map { |t| [[t.folder&.name, t.name].compact_blank.join(' / '), t.id] }, @template&.id),
+                       prompt: t('wello_select_template'), class: 'base-select w-full', required: true, aria: { label: t('wello_select_template') } %>
+      </submit-form>
+      <% if roles.size > 1 %>
+        <div>
+          <%= label_tag :client_role_uuid, t('wello_client_signs_as'), class: 'label' %>
+          <submit-form data-on="change" class="block">
+            <%= select_tag :client_role_uuid, options_for_select(roles.map { |r| [r['name'], r['uuid']] }, client_uuid), class: 'base-select w-full' %>
+          </submit-form>
+        </div>
+      <% end %>
+      <noscript><button class="btn btn-primary" type="submit"><%= t('wello_next') %></button></noscript>
+    <% end %>
+    <% if @templates.empty? %>
+      <p class="text-sm opacity-70 mt-2"><%= t('wello_no_templates_yet') %></p>
+    <% end %>
+  </div>
+
+  <% if @template %>
+    <%= form_with url: wello_client_send_form_path(@wello_client), method: :post, class: 'space-y-6', data: { turbo_frame: :_top } do %>
+      <%= hidden_field_tag :template_id, @template.id %>
+      <%= hidden_field_tag :client_role_uuid, client_uuid %>
+
+      <div class="rounded-2xl border border-base-300 p-5 space-y-4">
+        <div class="text-sm font-semibold"><%= t('wello_step_recipients') %></div>
+        <div class="text-sm">
+          <div class="font-medium"><%= @wello_client.contact_name.presence || @wello_client.display_name %></div>
+          <div class="opacity-70"><%= [@wello_client.email, @wello_client.phone].compact_blank.join(' · ').presence || t('wello_no_contact_details') %></div>
+        </div>
+        <% first_other_uuid = roles.find { |r| r['uuid'] != client_uuid }&.dig('uuid') %>
+        <% roles.each do |role| %>
+          <% next if role['uuid'] == client_uuid %>
+          <div class="border-t border-base-300 pt-4" data-role-uuid="<%= role['uuid'] %>">
+            <div class="text-sm font-medium mb-2"><%= role['name'] %> <span class="opacity-60 font-normal"><%= t('wello_other_signer_hint') %></span></div>
+            <div class="flex gap-3">
+              <%= text_field_tag "other_submitters[#{role['uuid']}][name]", role['uuid'] == first_other_uuid ? current_user.full_name : nil, placeholder: t('name'), class: 'base-input w-full', aria: { label: "#{role['name']} #{t('name')}" } %>
+              <%= email_field_tag "other_submitters[#{role['uuid']}][email]", role['uuid'] == first_other_uuid ? current_user.email : nil, placeholder: t('email'), class: 'base-input w-full', aria: { label: "#{role['name']} #{t('email')}" } %>
+            </div>
+          </div>
+        <% end %>
+        <% if roles.size > 1 %>
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <%= check_box_tag :preserve_order, '1', true, class: 'base-checkbox' %>
+            <span><%= t('wello_sign_in_order') %></span>
+          </label>
+        <% end %>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 p-5 space-y-3">
+        <div class="text-sm font-semibold"><%= t('wello_step_send_via') %></div>
+        <label class="flex items-center gap-2 cursor-pointer <%= 'opacity-50' if @wello_client.email.blank? %>">
+          <%= check_box_tag :send_email, '1', @wello_client.email.present?, disabled: @wello_client.email.blank?, class: 'base-checkbox' %>
+          <span><%= t('email') %><%= " (#{@wello_client.email})" if @wello_client.email.present? %></span>
+        </label>
+        <% sms_ready = Wello::Sms.configured?(current_account) %>
+        <label class="flex items-center gap-2 cursor-pointer <%= 'opacity-50' if !sms_ready || @wello_client.phone.blank? %>">
+          <%= check_box_tag :send_sms, '1', sms_ready && @wello_client.phone.present?, disabled: !sms_ready || @wello_client.phone.blank?, class: 'base-checkbox' %>
+          <span>SMS<%= " (#{@wello_client.phone})" if @wello_client.phone.present? %></span>
+        </label>
+        <% unless sms_ready %>
+          <p class="text-xs opacity-60"><%= t('wello_sms_not_set_up_hint') %></p>
+        <% end %>
+      </div>
+
+      <% prefill = Wello::ClientPrefill.values(@wello_client, @template, client_uuid) %>
+      <div class="rounded-2xl border border-base-300 p-5 space-y-3">
+        <div class="text-sm font-semibold"><%= t('wello_step_prefill') %></div>
+        <% if prefill.any? %>
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <%= hidden_field_tag :prefill, '0', id: nil %>
+            <%= check_box_tag :prefill, '1', true, class: 'base-checkbox' %>
+            <span><%= t('wello_prefill_fields', count: prefill.size) %></span>
+          </label>
+          <ul class="text-xs opacity-70 space-y-0.5 pl-6">
+            <% prefill.each do |name, value| %>
+              <li><span class="font-medium"><%= name %>:</span> <%= value %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-xs opacity-60"><%= t('wello_prefill_none') %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= button_tag button_title(title: t('wello_send_for_signing'), disabled_with: t('sending')), class: 'base-button w-full' %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

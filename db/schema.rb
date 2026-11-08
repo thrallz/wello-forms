@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_08_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_catalog.plpgsql"
@@ -387,6 +387,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
     t.datetime "updated_at", null: false
     t.text "variables"
     t.text "variables_schema"
+    t.bigint "wello_client_id"
     t.index ["account_id", "completed_at"], name: "index_submissions_on_account_id_and_completed_at", where: "((completed_at IS NOT NULL) AND (archived_at IS NULL))"
     t.index ["account_id", "id"], name: "index_submissions_on_account_id_and_id"
     t.index ["account_id", "id"], name: "index_submissions_on_account_id_and_id_pending", where: "((completed_at IS NULL) AND (archived_at IS NULL))"
@@ -396,6 +397,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
     t.index ["created_by_user_id"], name: "index_submissions_on_created_by_user_id"
     t.index ["slug"], name: "index_submissions_on_slug", unique: true
     t.index ["template_id"], name: "index_submissions_on_template_id"
+    t.index ["wello_client_id"], name: "index_submissions_on_wello_client_id"
   end
 
   create_table "submitter_versions", force: :cascade do |t|
@@ -597,6 +599,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
     t.index ["sha1"], name: "index_webhook_urls_on_sha1"
   end
 
+  create_table "wello_clients", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "address_line1"
+    t.string "address_line2"
+    t.datetime "archived_at"
+    t.bigint "assigned_user_id"
+    t.string "city"
+    t.string "contact_first_name"
+    t.string "contact_last_name"
+    t.datetime "created_at", null: false
+    t.string "dba_name"
+    t.string "email"
+    t.string "legal_name"
+    t.string "merchant_id"
+    t.text "notes"
+    t.string "phone"
+    t.string "state"
+    t.datetime "updated_at", null: false
+    t.string "vtiger_id"
+    t.string "vtiger_module"
+    t.string "zip"
+    t.index ["account_id", "email"], name: "index_wello_clients_on_account_id_and_email"
+    t.index ["account_id", "vtiger_id"], name: "index_wello_clients_on_account_id_and_vtiger_id", unique: true, where: "(vtiger_id IS NOT NULL)"
+    t.index ["account_id"], name: "index_wello_clients_on_account_id"
+    t.index ["assigned_user_id"], name: "index_wello_clients_on_assigned_user_id"
+  end
+
   create_table "wello_teams", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.datetime "created_at", null: false
@@ -632,6 +661,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
   add_foreign_key "submission_events", "submissions"
   add_foreign_key "submission_events", "submitters"
   add_foreign_key "submissions", "templates"
+  add_foreign_key "submissions", "wello_clients"
   add_foreign_key "submissions", "users", column: "created_by_user_id"
   add_foreign_key "submitter_versions", "submitters"
   add_foreign_key "submitters", "submissions"
@@ -650,5 +680,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_120000) do
   add_foreign_key "users", "accounts"
   add_foreign_key "users", "wello_teams"
   add_foreign_key "webhook_urls", "accounts"
+  add_foreign_key "wello_clients", "accounts"
+  add_foreign_key "wello_clients", "users", column: "assigned_user_id"
   add_foreign_key "wello_teams", "accounts"
 end

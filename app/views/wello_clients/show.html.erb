@@ -1,0 +1,93 @@
+<% content_for(:html_title, @wello_client.display_name) %>
+<div class="max-w-6xl mx-auto px-4 md:px-2">
+  <div class="text-sm mb-3">
+    <%= link_to "← #{t('wello_clients')}", wello_clients_path, class: 'link link-hover opacity-70' %>
+  </div>
+  <div class="flex flex-wrap items-start gap-3 mb-6">
+    <div class="mr-auto min-w-0">
+      <h1 class="text-3xl md:text-4xl font-bold truncate"><%= @wello_client.display_name %></h1>
+      <% if @wello_client.archived_at? %>
+        <span class="badge badge-ghost mt-1"><%= t('archived') %></span>
+      <% end %>
+    </div>
+    <% if can?(:update, @wello_client) %>
+      <%= link_to edit_wello_client_path(@wello_client), class: 'btn btn-ghost gap-2', data: { turbo_frame: 'modal' } do %>
+        <%= svg_icon('pencil', class: 'w-5 h-5') %>
+        <span><%= t('edit') %></span>
+      <% end %>
+    <% end %>
+    <% if @wello_client.vtiger_id.present? && can?(:update, @wello_client) && Wello::Vtiger.configured?(current_account) %>
+      <%= button_to wello_client_vtiger_sync_path(@wello_client), class: 'btn btn-ghost gap-2', form: { class: 'inline' } do %>
+        <%= svg_icon('rotate', class: 'w-5 h-5') %>
+        <span><%= t('wello_sync_from_vtiger') %></span>
+      <% end %>
+    <% end %>
+    <% if @wello_client.archived_at.nil? && can?(:create, Submission.new(account: current_account)) %>
+      <%= link_to new_wello_client_send_form_path(@wello_client), class: 'btn btn-secondary gap-2' do %>
+        <%= svg_icon('send', class: 'w-5 h-5') %>
+        <span><%= t('wello_send_form') %></span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="md:col-span-1 space-y-4">
+      <div class="rounded-2xl bg-base-200 p-5 space-y-3 text-sm">
+        <% if @wello_client.legal_name.present? %>
+          <div><div class="opacity-60"><%= t('wello_legal_name') %></div><div class="font-medium"><%= @wello_client.legal_name %></div></div>
+        <% end %>
+        <% if @wello_client.contact_name.present? %>
+          <div><div class="opacity-60"><%= t('wello_contact') %></div><div class="font-medium"><%= @wello_client.contact_name %></div></div>
+        <% end %>
+        <% if @wello_client.email.present? %>
+          <div><div class="opacity-60"><%= t('email') %></div><%= mail_to @wello_client.email, class: 'link link-accent' %></div>
+        <% end %>
+        <% if @wello_client.phone.present? %>
+          <div><div class="opacity-60"><%= t('phone') %></div><%= link_to @wello_client.phone, "tel:#{@wello_client.phone}", class: 'link link-accent' %></div>
+        <% end %>
+        <% if @wello_client.merchant_id.present? %>
+          <div><div class="opacity-60"><%= t('wello_merchant_id') %></div><div class="font-mono"><%= @wello_client.merchant_id %></div></div>
+        <% end %>
+        <% if @wello_client.address_lines.any? %>
+          <div><div class="opacity-60"><%= t('wello_address') %></div><% @wello_client.address_lines.each do |line| %><div><%= line %></div><% end %></div>
+        <% end %>
+        <% if @wello_client.assigned_user %>
+          <div><div class="opacity-60"><%= t('wello_assigned_rep') %></div><div><%= @wello_client.assigned_user.full_name.presence || @wello_client.assigned_user.email %></div></div>
+        <% end %>
+        <% if @wello_client.vtiger_id.present? %>
+          <div><div class="opacity-60">Vtiger</div><div class="font-mono"><%= @wello_client.vtiger_module %> <%= @wello_client.vtiger_id %></div></div>
+        <% end %>
+        <% if @wello_client.notes.present? %>
+          <div><div class="opacity-60"><%= t('wello_notes') %></div><div class="whitespace-pre-line"><%= @wello_client.notes %></div></div>
+        <% end %>
+      </div>
+      <% if can?(:destroy, @wello_client) %>
+        <%= button_to @wello_client.archived_at? ? t('unarchive') : t('archive'), wello_client_path(@wello_client), method: :delete, class: 'btn btn-ghost btn-sm w-full', form: { data: { turbo_confirm: t('are_you_sure_') } } %>
+      <% end %>
+    </div>
+
+    <div class="md:col-span-2">
+      <h2 class="text-xl font-bold mb-3"><%= t('wello_in_progress') %> <span class="opacity-50 font-normal">(<%= @pending_submissions.size %>)</span></h2>
+      <% if @pending_submissions.empty? %>
+        <p class="opacity-60 text-sm mb-8"><%= t('wello_nothing_waiting') %></p>
+      <% else %>
+        <div class="space-y-3 mb-8">
+          <% @pending_submissions.each do |submission| %>
+            <%= render 'document_row', submission: %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <h2 class="text-xl font-bold mb-3"><%= t('wello_signed_documents') %> <span class="opacity-50 font-normal">(<%= @completed_submissions.size %>)</span></h2>
+      <% if @completed_submissions.empty? %>
+        <p class="opacity-60 text-sm"><%= t('wello_no_signed_documents') %></p>
+      <% else %>
+        <div class="space-y-3">
+          <% @completed_submissions.each do |submission| %>
+            <%= render 'document_row', submission: %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

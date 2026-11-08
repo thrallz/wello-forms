@@ -80,6 +80,9 @@ RSpec.describe Ability do
     end
 
     it "can edit team members' templates" do
+      employee_template
+      admin_template
+
       expect(ability.can?(:update, employee_template)).to be(true)
       expect(ability.can?(:update, admin_template)).to be(false)
     end

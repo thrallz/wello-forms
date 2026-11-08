@@ -182,12 +182,19 @@ Rails.application.routes.draw do
   resources :settings, only: %i[index]
 
   get 'portal', to: 'wello_portal#index', as: :wello_portal
+  post 'submitters/:submitter_id/wello_sms', to: 'wello_submitter_sms#create', as: :wello_submitter_sms
+  get 'vtiger/open', to: 'wello_vtiger#open', as: :wello_vtiger_open
+  post 'clients/:wello_client_id/vtiger_sync', to: 'wello_vtiger#sync', as: :wello_client_vtiger_sync
+  resources :wello_clients, path: 'clients' do
+    resource :send_form, only: %i[new create], controller: 'wello_client_send_forms', path: 'send'
+  end
 
   scope '/settings', as: :settings do
     unless Docuseal.multitenant?
       resources :storage, only: %i[index create], controller: 'storage_settings'
       resources :search_entries_reindex, only: %i[create]
-      resources :sms, only: %i[index], controller: 'sms_settings'
+      resources :sms, only: %i[index create], controller: 'sms_settings'
+      delete 'sms', to: 'sms_settings#destroy'
       resources :mcp, only: %i[index new create destroy], controller: 'mcp_settings'
     end
     if Docuseal.demo? || !Docuseal.multitenant?
@@ -200,6 +207,7 @@ Rails.application.routes.draw do
     resource :esign, only: %i[show create new update destroy], controller: 'esign_settings'
     resources :users, only: %i[index]
     resources :wello_teams, only: %i[index create update destroy], path: 'teams'
+    resource :wello_vtiger, only: %i[show create destroy], controller: 'wello_vtiger_settings', path: 'vtiger'
     resources :archived_users, only: %i[index], path: 'users/:status', controller: 'users',
                                defaults: { status: :archived }
     resources :integration_users, only: %i[index], path: 'users/:status', controller: 'users',

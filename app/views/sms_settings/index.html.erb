@@ -1,9 +1,51 @@
 <% content_for(:native_title, 'SMS') if turbo_native_app? %>
 <div class="flex flex-wrap space-y-4 md:flex-nowrap md:space-y-0">
   <%= render 'shared/settings_nav' %>
-  <div class="flex-grow max-w-xl mx-auto">
-    <h1 class="text-3xl md:text-4xl font-bold mb-4">SMS</h1>
-    <%= render 'placeholder' %>
+  <div class="flex-grow max-w-xl mx-auto min-w-0">
+    <h1 class="text-3xl md:text-4xl font-bold mb-2">SMS</h1>
+    <p class="mb-6 opacity-70"><%= t('wello_sms_settings_description') %></p>
+    <% value = @encrypted_config.value.is_a?(Hash) ? @encrypted_config.value : {} %>
+    <% if Wello::Sms.configured?(current_account) %>
+      <div class="alert mb-4">
+        <%= svg_icon('circle_check', class: 'w-6 h-6 text-accent') %>
+        <span><%= t('wello_sms_connected') %></span>
+      </div>
+    <% end %>
+    <%= form_for @encrypted_config, url: settings_sms_path, method: :post, html: { autocomplete: 'off', class: 'space-y-4' } do |f| %>
+      <%= f.fields_for :value do |ff| %>
+        <div class="form-control">
+          <%= ff.label :account_sid, 'Twilio Account SID', class: 'label' %>
+          <%= ff.text_field :account_sid, value: value['account_sid'], required: true, class: 'base-input', placeholder: 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' %>
+        </div>
+        <div class="form-control">
+          <%= ff.label :auth_token, 'Auth Token', class: 'label' %>
+          <%= ff.password_field :auth_token, class: 'base-input', required: value['auth_token'].blank?, placeholder: value['auth_token'].present? ? '*************' : '' %>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <%= ff.label :from_number, t('wello_sms_from_number'), class: 'label' %>
+            <%= ff.text_field :from_number, value: value['from_number'], class: 'base-input', placeholder: '+15551234567' %>
+          </div>
+          <div class="form-control">
+            <%= ff.label :messaging_service_sid, "Messaging Service SID (#{t('optional')})", class: 'label' %>
+            <%= ff.text_field :messaging_service_sid, value: value['messaging_service_sid'], class: 'base-input', placeholder: 'MGxxxxxxxx' %>
+          </div>
+        </div>
+        <p class="text-xs opacity-60"><%= t('wello_sms_from_hint') %></p>
+      <% end %>
+      <div class="form-control">
+        <%= label_tag :test_phone, "#{t('wello_sms_test_phone')} (#{t('optional')})", class: 'label' %>
+        <%= telephone_field_tag :test_phone, nil, class: 'base-input', placeholder: '+15551234567' %>
+      </div>
+      <div class="form-control pt-2">
+        <%= f.button button_title(title: t('save'), disabled_with: t('saving')), class: 'base-button' %>
+      </div>
+    <% end %>
+    <% if @encrypted_config.persisted? %>
+      <div class="mt-4 text-center">
+        <%= button_to t('wello_sms_disconnect'), settings_sms_path, method: :delete, class: 'link text-sm opacity-70', form: { data: { turbo_confirm: t('are_you_sure_') } } %>
+      </div>
+    <% end %>
   </div>
   <div class="w-0 lg:w-52"></div>
 </div>

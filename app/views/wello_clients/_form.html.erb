@@ -1,0 +1,74 @@
+<%= form_for wello_client, url: wello_client.persisted? ? wello_client_path(wello_client) : wello_clients_path, html: { class: 'space-y-4' }, data: { turbo_frame: :_top } do |f| %>
+  <div class="space-y-2">
+    <% if wello_client.errors.any? %>
+      <div class="alert alert-error text-sm"><%= wello_client.errors.full_messages.to_sentence %></div>
+    <% end %>
+    <div class="flex gap-4">
+      <div class="w-full">
+        <%= f.label :dba_name, t('wello_dba_name'), class: 'label' %>
+        <%= f.text_field :dba_name, class: 'base-input w-full', dir: 'auto', autofocus: true %>
+      </div>
+      <div class="w-full">
+        <%= f.label :legal_name, t('wello_legal_name'), class: 'label' %>
+        <%= f.text_field :legal_name, class: 'base-input w-full', dir: 'auto' %>
+      </div>
+    </div>
+    <div class="flex gap-4">
+      <div class="w-full">
+        <%= f.label :contact_first_name, t('first_name'), class: 'label' %>
+        <%= f.text_field :contact_first_name, class: 'base-input w-full', dir: 'auto' %>
+      </div>
+      <div class="w-full">
+        <%= f.label :contact_last_name, t('last_name'), class: 'label' %>
+        <%= f.text_field :contact_last_name, class: 'base-input w-full', dir: 'auto' %>
+      </div>
+    </div>
+    <div class="flex gap-4">
+      <div class="w-full">
+        <%= f.label :email, t('email'), class: 'label' %>
+        <%= f.email_field :email, class: 'base-input w-full' %>
+      </div>
+      <div class="w-full">
+        <%= f.label :phone, t('phone'), class: 'label' %>
+        <%= f.telephone_field :phone, class: 'base-input w-full', placeholder: '+1 555 123 4567' %>
+      </div>
+    </div>
+    <div>
+      <%= f.label :merchant_id, t('wello_merchant_id'), class: 'label' %>
+      <%= f.text_field :merchant_id, class: 'base-input w-full' %>
+    </div>
+    <div>
+      <%= f.label :address_line1, t('wello_address'), class: 'label' %>
+      <%= f.text_field :address_line1, class: 'base-input w-full', placeholder: t('wello_street') %>
+      <%= f.text_field :address_line2, class: 'base-input w-full mt-2', placeholder: t('wello_suite') %>
+    </div>
+    <div class="flex gap-4">
+      <div class="w-full">
+        <%= f.label :city, t('wello_city'), class: 'label' %>
+        <%= f.text_field :city, class: 'base-input w-full' %>
+      </div>
+      <div class="w-24 shrink-0">
+        <%= f.label :state, t('wello_state'), class: 'label' %>
+        <%= f.text_field :state, class: 'base-input w-full' %>
+      </div>
+      <div class="w-32 shrink-0">
+        <%= f.label :zip, t('wello_zip'), class: 'label' %>
+        <%= f.text_field :zip, class: 'base-input w-full' %>
+      </div>
+    </div>
+    <% users = assignable_users.order(:first_name, :last_name).to_a %>
+    <% if users.size > 1 %>
+      <div>
+        <%= f.label :assigned_user_id, t('wello_assigned_rep'), class: 'label' %>
+        <%= f.select :assigned_user_id, users.map { |u| [u.full_name.presence || u.email, u.id] }, {}, class: 'base-select w-full' %>
+      </div>
+    <% end %>
+    <div>
+      <%= f.label :notes, t('wello_notes'), class: 'label' %>
+      <%= f.text_area :notes, rows: 3, class: 'base-textarea w-full', dir: 'auto' %>
+    </div>
+  </div>
+  <div class="form-control pt-2">
+    <%= f.button button_title, class: 'base-button' %>
+  </div>
+<% end %>
