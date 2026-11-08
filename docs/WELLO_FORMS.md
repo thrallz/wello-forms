@@ -84,22 +84,51 @@ docker compose -f docker-compose.dev.yml down -v       # stop and wipe DB/gems
 - Code: `lib/ability.rb` (rules), `app/models/wello_team.rb`, `app/controllers/concerns/wello_client_access.rb`, `app/controllers/wello_portal_controller.rb`.
 - Tests: `docker compose -f docker-compose.dev.yml exec app bin/wello-spec spec/lib/wello_ability_spec.rb spec/requests/wello_roles_spec.rb`
 
-### Phase 3 — Client dashboard, employee workflow, document history
-- **Client dashboard** (`/portal`): pending to sign, completed (download), history; magic-link or password login.
-- **Employee workflow**: queue of submissions by status (draft → sent → viewed → signed → reviewed → filed), assign/reassign, internal notes, reminders.
-- **Document history**: unified timeline per document and per client from `submission_events` (sent, opened, signed, declined, downloaded) + Wello workflow events; export audit trail PDF.
+### Phase 3 — Clients, send flow, document history ✅ (branch `feature/clients`)
 
-### Phase 4 — Vtiger integration
-Vtiger's built-in **Esign Documents** module only talks to DocuSign / Zoho Sign, so Wello Forms can't be plugged in as a native provider. Integrate through Vtiger workflows + REST API instead:
+- **Clients** (top bar → Clients): search by business name, contact, email, phone digits or MID; add/edit/archive.
+  Fields: DBA, legal name, contact first/last, email, phone, MID, address, notes, assigned rep, Vtiger link.
+  Visibility follows the roles: employees see clients assigned to them, managers their team's, admins all.
+- **Send a form** (client page or the Send button in the list): pick a template → choose which role the client
+  signs as → optional other signers (defaults to you) → email and/or SMS → pre-fill → Send.
+- **Auto-fill:** text fields whose name matches client data are pre-filled. Recognised names include
+  `Business Name`, `DBA`, `Legal Name`, `Name`, `Owner Name`, `First Name`, `Last Name`, `Email`, `Phone`,
+  `MID`, `Merchant ID`, `Address`, `Suite`, `City`, `State`, `ZIP`, `Full Address` (case/punctuation ignored).
+  Rename fields in the template builder to use this.
+- **Document history:** each client page lists *In progress* and *Signed documents* with per-signer status;
+  every document sent from the client flow is linked to the client (`submissions.wello_client_id`).
 
-1. **Vtiger → Wello Forms (send):** a Vtiger workflow (e.g. Deal stage = "Contract", or a checkbox "Send for signature") with a **Webhook** action POSTs the record to `POST /api/wello/vtiger/webhook`. Wello Forms maps the record to a template, prefills fields, creates the submission and emails the signer.
-2. **Wello Forms → Vtiger (status):** on `form.viewed`, `form.completed`, `form.declined`, update the Vtiger record (custom fields `Wello Sign Status`, `Wello Sign Link`, `Signed On`) via the Vtiger REST API.
-3. **Signed PDF back to CRM:** on completion, upload the signed PDF + audit log as a Vtiger Document linked to the Contact/Organization/Deal.
-4. Store mapping (Vtiger module + record ID ↔ submission ID) in a `wello_crm_links` table so the history view can link back to the CRM.
+### Phase 4 — SMS, email, Vtiger ✅ (branch `feature/clients`)
 
-Build the CRM layer behind an adapter (`Wello::Crm::VtigerAdapter`) so a `SuiteCrmAdapter` can be added later without touching the signing flow.
+**Email (your SMTP):** Settings → Email. Built into DocuSeal; enter host, port, username, password, from address.
 
-Config (`.env`): `VTIGER_URL`, `VTIGER_USERNAME`, `VTIGER_ACCESS_KEY` (user preferences → access key).
+**SMS (your Twilio):** Settings → SMS → Account SID, Auth Token, and a From number (`+15551234567`) or a
+Messaging Service SID (recommended for US A2P 10DLC). Use *Send a test SMS* to verify. Once connected:
+- the send flow offers SMS; links also go out by SMS through the API (`send_sms: true`) and to the next signer
+  in ordered signing; submission pages get *Send / Re-send SMS*;
+- each SMS is logged as a `send_sms` event in the document's audit trail.
+
+**Vtiger (Cloud):** Settings → Vtiger → URL (`https://yourcompany.od2.vtiger.com`), username and access key
+(Vtiger → My Preferences), optional MID custom field name (e.g. `cf_accounts_mid`). Save tests the connection.
+- **Button in Vtiger:** Menu → Platform → Module Designer → UI Actions → *Detail View Basic Button* for
+  Organizations / Contacts / Leads / Deals, click action:
+  `window.open('https://<wello-forms-host>/vtiger/open?module=' + VTAP.Detail.Module() + '&record=' + VTAP.Detail.Id(), '_blank');`
+  Clicking it imports/refreshes the client in Wello Forms (contacts and deals are filed under their organization)
+  and opens *Send a form*. Add `&template_id=<id>` to pre-select a template.
+- **Sync from Vtiger** button on linked client pages refreshes details.
+- **When a document is fully signed**, a comment with a link is posted on the Vtiger record.
+- Code is behind `Wello::Vtiger` so a SuiteCRM connector can be added later.
+
+### Next ideas
+- SuiteCRM connector (same interface as `Wello::Vtiger`).
+- Employee work queue across clients (sent → viewed → signed → reviewed → filed) with reminders.
+- Attach signed PDFs to the Vtiger record (Documents module), not just a comment.
+
+## Testing
+
+GitHub Actions runs RuboCop, ERB lint, ESLint, Brakeman and the full RSpec suite on every push
+(Actions tab on GitHub). Locally on the dev server:
+`docker compose -f docker-compose.dev.yml exec app bin/wello-spec spec/lib/wello spec/requests/wello_clients_spec.rb`
 
 ## Brand palette (Phase 1)
 
