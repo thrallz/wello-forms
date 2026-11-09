@@ -54,4 +54,3 @@ RSpec.describe 'Wello Vtiger button' do
     expect(response.body).to include('Lux Nails', 'Import &amp; send')
   end
 end
-
