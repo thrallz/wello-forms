@@ -23,6 +23,9 @@ module Wello
 
     SYNC_EVENT_TYPES = %w[view_form decline_form complete_form].freeze
 
+    # Label of the related list on Organizations/Contacts/etc. when the relationship has no reference field.
+    RELATION_LABEL = 'Wello Signatures'
+
     module_function
 
     def normalize(label)
@@ -176,7 +179,24 @@ module Wello
                                        { elementType: module_name, element: element.to_json }, method: :post)
 
         submission.update_columns(wello_vtiger_signature_id: record['id'])
+
+        link_to_client(submission, record['id']) unless reference_field?(submission, map)
       end
+    end
+
+    def reference_field?(submission, map)
+      map[:references][submission.wello_client.vtiger_module.presence || 'Accounts'].present?
+    end
+
+    # For relationships without a reference field (e.g. many-to-many), link through the related list.
+    def link_to_client(submission, record_id)
+      Wello::Vtiger.request(submission.account, 'add_related', {
+                              sourceRecordId: submission.wello_client.vtiger_id,
+                              relatedRecordId: record_id,
+                              relationIdLabel: RELATION_LABEL
+                            }, method: :post)
+    rescue Wello::Vtiger::Error => e
+      Rails.logger.warn("Wello Vtiger signature link failed for submission #{submission.id}: #{e.message}")
     end
 
     # Adds the signed copy to the client's Documents tab in Vtiger (as a web link to the signed PDF).

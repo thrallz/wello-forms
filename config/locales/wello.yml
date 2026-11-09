@@ -149,3 +149,4 @@ en:
   wello_vtiger_field_link: Document Link
   wello_vtiger_related_to: Linked to %{module}
   wello_vtiger_signed_document_title: 'Signed: %{document}'
+  wello_vtiger_related_list_note: No link field to Organizations was found, so Wello Forms will attach each signature through the "Wello Signatures" related list instead. Make sure the Relationships step in Module Builder includes Organizations (and Contacts/Leads/Deals if you use them).

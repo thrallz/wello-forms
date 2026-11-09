@@ -88,6 +88,20 @@ RSpec.describe Wello::VtigerSignatures do
       expect(revise_stub).to have_been_requested.once
     end
 
+    it 'links through the related list when the module has no reference field' do
+      without_reference = describe_result.merge(fields: describe_result[:fields].reject { |f| f[:name] == 'cf_org' })
+      stub_request(:get, "#{base}/describe?elementType=WelloSignatures").to_return(ok(without_reference))
+      stub_request(:post, "#{base}/create").to_return(ok(id: '55x7'))
+      related_stub = stub_request(:post, "#{base}/add_related")
+                     .with(body: { sourceRecordId: '11x42', relatedRecordId: '55x7',
+                                   relationIdLabel: 'Wello Signatures' })
+                     .to_return(ok(message: 'successful'))
+
+      described_class.sync(submission)
+
+      expect(related_stub).to have_been_requested
+    end
+
     it 'marks it signed and adds the signed copy to Documents' do
       submission.update!(wello_vtiger_signature_id: '55x7', wello_vtiger_status: 'viewed', completed_at: Time.current)
       revise_stub = stub_request(:post, "#{base}/revise").to_return(ok(id: '55x7'))

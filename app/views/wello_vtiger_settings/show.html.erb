@@ -65,12 +65,16 @@
               </li>
             <% end %>
             <% %w[Accounts Contacts Leads Potentials].each do |target| %>
+              <% next unless map[:references][target] %>
               <li class="flex items-center gap-2">
-                <%= svg_icon(map[:references][target] ? 'circle_check' : 'x', class: "w-4 h-4 #{map[:references][target] ? 'text-accent' : 'opacity-40'}") %>
+                <%= svg_icon('circle_check', class: 'w-4 h-4 text-accent') %>
                 <span><%= t('wello_vtiger_related_to', module: t("wello_vtiger_module_#{target.downcase}")) %></span>
               </li>
             <% end %>
           </ul>
+          <% if map[:references].slice('Accounts', 'Contacts', 'Leads', 'Potentials').empty? %>
+            <p class="text-xs opacity-70"><%= t('wello_vtiger_related_list_note') %></p>
+          <% end %>
         <% end %>
       </div>
     <% end %>
