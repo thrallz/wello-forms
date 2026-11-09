@@ -484,7 +484,7 @@
     </label>
   </li>
   <li
-    v-if="withCondition && (withConditions || !nativePlatform) && field.type != 'stamp' && field.type != 'heading'"
+    v-if="withCondition && withConditions && field.type != 'stamp' && field.type != 'heading'"
     class="field-settings-condition"
   >
     <label
@@ -500,7 +500,7 @@
     </label>
   </li>
   <li
-    v-if="(field.type == 'number' || field.type == 'date' || field.preferences?.formula) && (withFormula || !nativePlatform)"
+    v-if="(field.type == 'number' || field.type == 'date' || field.preferences?.formula) && withFormula"
     class="field-settings-formula"
   >
     <label

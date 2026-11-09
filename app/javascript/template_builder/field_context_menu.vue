@@ -608,10 +608,10 @@ export default {
       return !['stamp', 'heading', 'strikethrough'].includes(this.field.type)
     },
     showCondition () {
-      return this.withCondition && (this.withConditions || !this.nativePlatform) && !['stamp', 'heading'].includes(this.field.type)
+      return this.withCondition && this.withConditions && !['stamp', 'heading'].includes(this.field.type)
     },
     showFormula () {
-      return (this.field.type === 'number' || this.field.type === 'date' || this.field.type === 'payment' || !!this.field.preferences?.formula) && (this.withFormula || !this.nativePlatform)
+      return (this.field.type === 'number' || this.field.type === 'date' || this.field.type === 'payment' || !!this.field.preferences?.formula) && this.withFormula
     },
     showRequired () {
       return this.withRequired && !['phone', 'stamp', 'verification', 'strikethrough', 'heading'].includes(this.field.type)

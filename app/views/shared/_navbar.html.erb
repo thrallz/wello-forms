@@ -47,9 +47,9 @@
               <span class="mr-1"><%= t('profile') %></span>
             <% end %>
           </li>
-          <% if !Docuseal.demo? && can?(:manage, EncryptedConfig) %>
+          <% if !Docuseal.demo? && can?(:manage, EncryptedConfig) && current_user.sidekiq? %>
             <li>
-              <%= link_to Docuseal.multitenant? ? console_redirect_index_path : Docuseal::CONSOLE_URL, data: { turbo_prefetch: false }, class: 'flex items-center' do %>
+              <%= link_to Docuseal.multitenant? ? console_redirect_index_path : '/sidekiq', target: ('_blank' unless Docuseal.multitenant?), data: { turbo_prefetch: false }, class: 'flex items-center' do %>
                 <%= svg_icon('terminal', class: 'w-5 h-5 flex-shrink-0 stroke-2') %>
                 <%= t('console') %>
               <% end %>

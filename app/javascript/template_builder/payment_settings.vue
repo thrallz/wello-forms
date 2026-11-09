@@ -203,7 +203,7 @@
         >{{ t('learn_more') }}</a>
       </div>
       <li
-        v-if="withFormula || !nativePlatform"
+        v-if="withFormula"
         class="field-settings-formula mb-1"
       >
         <label
@@ -233,7 +233,7 @@
         </label>
       </li>
       <li
-        v-if="withCondition && (withConditions || !nativePlatform)"
+        v-if="withCondition && withConditions"
         class="field-settings-condition mt-1"
       >
         <label

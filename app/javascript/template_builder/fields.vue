@@ -275,7 +275,7 @@
         </div>
       </button>
       <div
-        v-else-if="type == 'phone' && !nativePlatform && (fieldTypes.length === 0 || fieldTypes.includes(type))"
+        v-else-if="false && type == 'phone' && !nativePlatform && (fieldTypes.length === 0 || fieldTypes.includes(type))"
         class="tooltip tooltip-bottom flex"
         :class="{'tooltip-bottom-end': withPayment, 'tooltip-bottom': !withPayment }"
         :data-tip="t('unlock_sms_verified_phone_number_field_with_paid_plan_use_text_field_for_phone_numbers_without_verification')"
@@ -302,7 +302,7 @@
         </a>
       </div>
       <div
-        v-else-if="withVerification === false && type == 'verification' && (fieldTypes.length === 0 || fieldTypes.includes(type))"
+        v-else-if="false && withVerification === false && type == 'verification' && (fieldTypes.length === 0 || fieldTypes.includes(type))"
         class="tooltip tooltip-bottom flex tooltip-bottom-start"
         :data-tip="t('obtain_qualified_electronic_signature_with_the_trusted_provider_click_to_learn_more')"
       >

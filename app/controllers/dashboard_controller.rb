@@ -36,9 +36,10 @@ class DashboardController < ApplicationController
     redirect_to mfa_setup_path, notice: I18n.t('setup_2fa_to_continue')
   end
 
+  # Wello Forms: send visitors to the sign-in form instead of DocuSeal's landing page.
   def maybe_render_landing
     return if signed_in?
 
-    render 'pages/landing'
+    redirect_to new_user_session_path
   end
 end

@@ -259,7 +259,7 @@ export default {
       return true
     },
     showCondition () {
-      return this.withCondition && (this.withConditions || !this.nativePlatform)
+      return this.withCondition && this.withConditions
     },
     fieldNames: FieldType.computed.fieldNames,
     fieldLabels: FieldType.computed.fieldLabels

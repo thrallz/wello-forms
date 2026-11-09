@@ -14,6 +14,6 @@ RSpec.describe 'Personalization' do
     expect(page).to have_content('Signature Request Email')
     expect(page).to have_content('Completed Notification Email')
     expect(page).to have_content('Documents Copy Email')
-    expect(page).to have_content('Company Logo')
+    expect(page).to have_no_content('Company Logo')
   end
 end

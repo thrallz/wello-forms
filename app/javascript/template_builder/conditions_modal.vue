@@ -23,7 +23,7 @@
       </div>
       <div>
         <div
-          v-if="!withConditions"
+          v-if="false && !withConditions"
           class="bg-base-300 rounded-xl py-2 px-3 text-center"
         >
           <a
