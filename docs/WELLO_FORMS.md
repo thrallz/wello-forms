@@ -125,8 +125,45 @@ Messaging Service SID (recommended for US A2P 10DLC). Use *Send a test SMS* to v
   Clicking it imports/refreshes the client in Wello Forms (contacts and deals are filed under their organization)
   and opens *Send a form*. Add `&template_id=<id>` to pre-select a template.
 - **Sync from Vtiger** button on linked client pages refreshes details.
-- **When a document is fully signed**, a comment with a link is posted on the Vtiger record.
+- **Wello Signatures (DocuSign/Zoho Sign-style tracking in Vtiger):** create a custom module once with
+  Vtiger *Settings → Module Builder*, and Wello Forms keeps a sign-request record per document with live status
+  and puts the signed copy in the record's Documents tab. See *Vtiger: Wello Signatures module setup* below.
+  Without the module, a comment with a link is posted on the record when a document is signed.
 - Code is behind `Wello::Vtiger` so a SuiteCRM connector can be added later.
+
+### Vtiger: Wello Signatures module setup
+
+In Vtiger: **Settings → Module Builder → Create New Module**.
+
+1. **Module Properties**
+   - Module Label: `Wello Signatures` · Singular Module Label: `Wello Signature`
+   - App Category: *Sales* (or wherever your team works) · Record Identifier: `Document Name`
+2. **Blocks and Fields** — add these fields (labels must match; case doesn't matter):
+
+   | Label | Type | Notes |
+   |---|---|---|
+   | `Status` | Picklist | Values exactly: `Sent`, `Viewed`, `Signed`, `Declined` |
+   | `Signer Name` | Text | |
+   | `Signer Email` | Email | |
+   | `Sent On` | Date | |
+   | `Signed On` | Date | |
+   | `Document Link` | URL | Opens the document in Wello Forms (the signed copy once complete) |
+
+3. **Default Filter** — show Document Name, Status, Signer Name, Sent On, Signed On.
+4. **Relationships** — add a relationship with **Organizations** (one Organization has many Wello Signatures).
+   Optionally also Contacts, Leads and Deals. This adds the *Wello Signatures* tab on those records.
+
+Then in Wello Forms: **Settings → Vtiger** → the *Wello Signatures module* panel should show the module and a
+green tick for every field. Fields with a red cross were not found — check the label spelling in Vtiger.
+
+What happens after that, for documents sent to a client linked to Vtiger:
+
+| Event in Wello Forms | In Vtiger |
+|---|---|
+| Form sent | New Wello Signature record, Status = Sent, linked to the organization |
+| Signer opens it | Status = Viewed |
+| Signer declines | Status = Declined |
+| Everyone signs | Status = Signed, Signed On set, Document Link → signed copy; a *Signed: …* entry is added to the organization's Documents tab |
 
 ### Next ideas
 - SuiteCRM connector (same interface as `Wello::Vtiger`).
