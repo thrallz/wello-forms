@@ -100,7 +100,7 @@ RSpec.describe 'Wello clients' do
       get new_wello_client_send_form_path(client, template_id: template.id)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include(template.name)
+      expect(response.body).to include(ERB::Util.html_escape(template.name))
       expect(response.body).to include('First Name')
     end
 
@@ -131,7 +131,7 @@ RSpec.describe 'Wello clients' do
 
       get wello_client_path(client)
 
-      expect(response.body).to include(template.name)
+      expect(response.body).to include(ERB::Util.html_escape(template.name))
     end
   end
 end
