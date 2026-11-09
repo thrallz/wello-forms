@@ -13,7 +13,8 @@ class WelloVtigerController < ApplicationController
     end
 
     client = Wello::Vtiger.build_client(account: current_account, user: current_user,
-                                        module_name: params[:module].to_s, record_id: params[:record].to_s)
+                                        module_name: params[:module].to_s, record_id: params[:record].to_s,
+                                        number: params[:number].presence)
 
     if client.persisted? && !can?(:read, client)
       return redirect_to wello_clients_path,
@@ -26,6 +27,16 @@ class WelloVtigerController < ApplicationController
     redirect_to new_wello_client_send_form_path(client, template_id: params[:template_id].presence)
   rescue Wello::Vtiger::Error, ActiveRecord::RecordInvalid => e
     redirect_to wello_clients_path, alert: e.message
+  end
+
+  def search
+    authorize!(:create, WelloClient.new(account: current_account))
+
+    @configured = Wello::Vtiger.configured?(current_account)
+    @results = @configured && params[:q].present? ? Wello::Vtiger.search(current_account, params[:q]) : []
+  rescue Wello::Vtiger::Error => e
+    @results = []
+    flash.now[:alert] = e.message
   end
 
   def sync

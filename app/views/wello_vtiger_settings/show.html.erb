@@ -42,10 +42,27 @@
       </div>
     <% end %>
 
+    <% open_url = wello_vtiger_open_url(**Docuseal.default_url_options) %>
+    <div class="mt-10 space-y-3">
+      <h2 class="text-xl font-bold"><%= t('wello_vtiger_link_title') %></h2>
+      <p class="text-sm opacity-80"><%= t('wello_vtiger_link_steps') %></p>
+      <ol class="list-decimal pl-5 text-sm space-y-1 opacity-80">
+        <li><%= t('wello_vtiger_link_step1') %></li>
+        <li><%= t('wello_vtiger_link_step2') %></li>
+        <li><%= t('wello_vtiger_link_step3') %></li>
+      </ol>
+      <% { 'Accounts' => 'account_no', 'Contacts' => 'contact_no', 'Leads' => 'lead_no', 'Potentials' => 'potential_no' }.each do |module_name, field| %>
+        <div>
+          <div class="text-xs font-semibold mb-1"><%= t("wello_vtiger_module_#{module_name.downcase}", default: module_name) %></div>
+          <pre class="bg-base-200 rounded-xl p-3 text-xs overflow-x-auto whitespace-pre-wrap select-all">concat('<%= open_url %>?module=<%= module_name %>&number=', <%= field %>)</pre>
+        </div>
+      <% end %>
+      <p class="text-xs opacity-60"><%= t('wello_vtiger_link_existing_records') %></p>
+    </div>
+
     <div class="mt-10 space-y-3">
       <h2 class="text-xl font-bold"><%= t('wello_vtiger_button_title') %></h2>
       <p class="text-sm opacity-80"><%= t('wello_vtiger_button_steps') %></p>
-      <% open_url = wello_vtiger_open_url(**Docuseal.default_url_options) %>
       <pre class="bg-base-200 rounded-xl p-4 text-xs overflow-x-auto whitespace-pre-wrap select-all">window.open('<%= open_url %>?module=' + VTAP.Detail.Module() + '&record=' + VTAP.Detail.Id(), '_blank');</pre>
       <p class="text-xs opacity-60"><%= t('wello_vtiger_button_modules') %></p>
     </div>

@@ -1,0 +1,37 @@
+<% content_for(:html_title, t('wello_import_from_vtiger')) %>
+<div class="max-w-3xl mx-auto px-4">
+  <div class="text-sm mb-3">
+    <%= link_to "← #{t('wello_clients')}", wello_clients_path, class: 'link link-hover opacity-70' %>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold mb-2"><%= t('wello_import_from_vtiger') %></h1>
+  <p class="mb-6 opacity-70"><%= t('wello_import_from_vtiger_description') %></p>
+
+  <% if @configured %>
+    <%= form_with url: wello_vtiger_search_path, method: :get, class: 'flex gap-2 mb-6', data: { turbo_frame: :_top } do %>
+      <%= search_field_tag :q, params[:q], placeholder: t('wello_vtiger_search_placeholder'), class: 'base-input w-full', autocomplete: 'off', autofocus: true, aria: { label: t('wello_vtiger_search_placeholder') } %>
+      <button class="btn btn-neutral" type="submit"><%= svg_icon('search', class: 'w-5 h-5') %></button>
+    <% end %>
+
+    <% if params[:q].present? && @results.empty? %>
+      <p class="opacity-70"><%= t('wello_no_vtiger_results', query: params[:q]) %></p>
+    <% end %>
+
+    <div class="space-y-3">
+      <% @results.each do |result| %>
+        <div class="flex items-center justify-between gap-4 rounded-2xl border border-base-300 p-4">
+          <div class="min-w-0">
+            <div class="font-semibold truncate"><%= result[:name] %></div>
+            <div class="text-sm opacity-70">
+              <%= [t("wello_vtiger_module_#{result[:module].downcase}", default: result[:module]), result[:number], result[:email], result[:phone]].compact_blank.join(' · ') %>
+            </div>
+          </div>
+          <%= link_to t('wello_import_and_send'), wello_vtiger_open_path(module: result[:module], record: result[:id]), class: 'btn btn-secondary btn-sm shrink-0' %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="rounded-2xl bg-base-200 p-8 text-center opacity-80">
+      <%= t('wello_vtiger_not_configured') %>
+    </div>
+  <% end %>
+</div>

@@ -46,4 +46,31 @@ RSpec.describe Wello::Vtiger do
     expect { described_class.build_client(account:, user:, module_name: 'Accounts', record_id: '11x7') }
       .to raise_error(described_class::Error, 'Permission denied')
   end
+
+  it 'finds the record from its record number (for Vtiger workflow links)' do
+    stub_request(:get, "#{base}/query")
+      .with(query: { query: "SELECT id FROM Accounts WHERE account_no = 'ACC123' LIMIT 1;" })
+      .to_return(body: { success: true, result: [{ id: '11x42' }] }.to_json)
+
+    client = described_class.build_client(account:, user:, module_name: 'Accounts', number: 'ACC123')
+
+    expect(client.vtiger_id).to eq('11x42')
+  end
+
+  it 'searches organizations, contacts and leads' do
+    stub_request(:get, "#{base}/query")
+      .with(query: hash_including({}))
+      .to_return do |request|
+        vtql = CGI.parse(URI(request.uri.to_s).query)['query'].first
+        rows = vtql.include?('FROM Accounts') ? [{ id: '11x42', accountname: 'Lux Nails', account_no: 'ACC1' }] : []
+
+        { body: { success: true, result: rows }.to_json }
+      end
+
+    results = described_class.search(account, "lux'; DROP")
+
+    expect(results).to contain_exactly(include(module: 'Accounts', id: '11x42', name: 'Lux Nails', number: 'ACC1'))
+    expect(a_request(:get, /query=.*DROP/)).to have_been_made.times(3)
+    expect(a_request(:get, /%27%3B/)).not_to have_been_made
+  end
 end

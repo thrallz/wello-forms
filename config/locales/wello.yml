@@ -119,3 +119,19 @@ en:
   wello_client_synced: Client details updated from Vtiger
   wello_sync_from_vtiger: Sync from Vtiger
   wello_vtiger_completed_note: '"%{document}" was signed in Wello Forms: %{link}'
+  wello_import_from_vtiger: Import from Vtiger
+  wello_import_from_vtiger_description: Find an organization, contact or lead in Vtiger and bring it into Wello Forms to send a form.
+  wello_vtiger_search_placeholder: Business name, contact name, email, phone or record number (ACC123)
+  wello_no_vtiger_results: Nothing in Vtiger matches "%{query}".
+  wello_import_and_send: Import & send
+  wello_vtiger_module_accounts: Organization
+  wello_vtiger_module_contacts: Contact
+  wello_vtiger_module_leads: Lead
+  wello_vtiger_module_potentials: Deal
+  wello_vtiger_link_title: Add a "Wello Forms" link to Vtiger records (any Vtiger edition)
+  wello_vtiger_link_steps: This puts a clickable link on each record using a URL field and a workflow.
+  wello_vtiger_link_step1: In Vtiger Settings → Module Layouts & Fields, pick Organizations and add a custom field of type URL named "Wello Forms".
+  wello_vtiger_link_step2: In Settings → Workflows, add a workflow for Organizations that runs every time the record is saved, with an "Update Fields" action that sets the Wello Forms field to the expression below.
+  wello_vtiger_link_step3: Repeat for Contacts, Leads or Deals if you want the link there too, using the matching expression.
+  wello_vtiger_link_existing_records: Existing records get the link the next time they are saved. To fill them all at once, select records in the list view and use Mass Edit to save them.
+  wello_vtiger_button_title: Or add a button (Vtiger One Professional / Enterprise only)

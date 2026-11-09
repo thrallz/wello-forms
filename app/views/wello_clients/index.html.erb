@@ -7,6 +7,12 @@
       <%= search_field_tag :q, params[:q], placeholder: t('wello_search_clients'), class: 'base-input w-64 md:w-80', autocomplete: 'off', aria: { label: t('wello_search_clients') } %>
       <button class="btn btn-primary" type="submit"><%= svg_icon('search', class: 'w-5 h-5') %></button>
     <% end %>
+    <% if can?(:create, WelloClient.new(account: current_account)) && Wello::Vtiger.configured?(current_account) %>
+      <%= link_to wello_vtiger_search_path, class: 'btn btn-ghost gap-2' do %>
+        <%= svg_icon('download', class: 'w-5 h-5') %>
+        <span><%= t('wello_import_from_vtiger') %></span>
+      <% end %>
+    <% end %>
     <% if can?(:create, WelloClient.new(account: current_account)) %>
       <%= link_to new_wello_client_path, class: 'btn btn-neutral gap-2', data: { turbo_frame: 'modal' } do %>
         <%= svg_icon('plus', class: 'w-5 h-5') %>

@@ -33,4 +33,25 @@ RSpec.describe 'Wello Vtiger button' do
     expect(response).to redirect_to(wello_clients_path)
     expect(WelloClient.find_by(vtiger_id: '11x42').dba_name).to eq('Lux')
   end
+
+  it 'opens from a Vtiger workflow link that uses the record number' do
+    stub_request(:get, "#{base}/query")
+      .with(query: { query: "SELECT id FROM Accounts WHERE account_no = 'ACC9' LIMIT 1;" })
+      .to_return(body: { success: true, result: [{ id: '11x42' }] }.to_json)
+
+    get wello_vtiger_open_path(module: 'Accounts', number: 'ACC9')
+
+    expect(response).to redirect_to(new_wello_client_send_form_path(WelloClient.find_by(vtiger_id: '11x42')))
+  end
+
+  it 'shows Vtiger search results to import' do
+    stub_request(:get, "#{base}/query")
+      .with(query: hash_including({}))
+      .to_return(body: { success: true, result: [{ id: '11x42', accountname: 'Lux Nails' }] }.to_json)
+
+    get wello_vtiger_search_path(q: 'lux')
+
+    expect(response.body).to include('Lux Nails', 'Import &amp; send')
+  end
 end
+

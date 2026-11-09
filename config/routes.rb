@@ -184,6 +184,7 @@ Rails.application.routes.draw do
   get 'portal', to: 'wello_portal#index', as: :wello_portal
   post 'submitters/:submitter_id/wello_sms', to: 'wello_submitter_sms#create', as: :wello_submitter_sms
   get 'vtiger/open', to: 'wello_vtiger#open', as: :wello_vtiger_open
+  get 'vtiger/search', to: 'wello_vtiger#search', as: :wello_vtiger_search
   post 'clients/:wello_client_id/vtiger_sync', to: 'wello_vtiger#sync', as: :wello_client_vtiger_sync
   resources :wello_clients, path: 'clients' do
     resource :send_form, only: %i[new create], controller: 'wello_client_send_forms', path: 'send'

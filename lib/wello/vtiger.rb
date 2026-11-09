@@ -10,6 +10,17 @@ module Wello
     API_PATH = '/restapi/v1/vtiger/default'
     SUPPORTED_MODULES = %w[Accounts Contacts Leads Potentials].freeze
 
+    # Record-number fields (e.g. ACC123) — usable in Vtiger workflow expressions, unlike the internal id.
+    NUMBER_FIELDS = {
+      'Accounts' => 'account_no', 'Contacts' => 'contact_no', 'Leads' => 'lead_no', 'Potentials' => 'potential_no'
+    }.freeze
+
+    SEARCH_FIELDS = {
+      'Accounts' => %w[accountname email1 phone account_no],
+      'Contacts' => %w[firstname lastname email mobile contact_no],
+      'Leads' => %w[company firstname lastname email lead_no]
+    }.freeze
+
     Error = Class.new(StandardError)
 
     module_function
@@ -99,6 +110,55 @@ module Wello
       "#{prefix}x#{record_id}"
     end
 
+    def query(account, vtql)
+      request(account, 'query', { query: vtql })
+    end
+
+    def quote(value)
+      "'#{value.to_s.gsub(/['\\%;]/, '').strip}'"
+    end
+
+    def webservice_id_by_number(account, module_name, number)
+      field = NUMBER_FIELDS.fetch(module_name) { raise Error, "Unsupported Vtiger module #{module_name}" }
+      record = query(account, "SELECT id FROM #{module_name} WHERE #{field} = #{quote(number)} LIMIT 1;")&.first
+
+      raise Error, "No Vtiger #{module_name} record #{number}" if record.blank?
+
+      record['id']
+    end
+
+    # Searches organizations, contacts and leads by name, email, phone or record number.
+    def search(account, term)
+      term = term.to_s.gsub(/['\\%;]/, '').strip
+
+      return [] if term.length < 2
+
+      SEARCH_FIELDS.flat_map do |module_name, fields|
+        where = fields.map { |f| "#{f} LIKE '%#{term}%'" }.join(' OR ')
+
+        (query(account, "SELECT * FROM #{module_name} WHERE #{where} LIMIT 10;") || []).map do |record|
+          search_result(module_name, record)
+        end
+      end
+    end
+
+    def search_result(module_name, record)
+      name =
+        case module_name
+        when 'Accounts' then record['accountname']
+        when 'Leads' then [record['company'], [record['firstname'], record['lastname']].compact_blank.join(' ')]
+                          .compact_blank.join(' — ')
+        else [record['firstname'], record['lastname']].compact_blank.join(' ')
+        end
+
+      {
+        module: module_name, id: record['id'], name: name.presence || record['id'],
+        number: record[NUMBER_FIELDS[module_name]],
+        email: record['email1'].presence || record['email'],
+        phone: record['phone'].presence || record['mobile']
+      }
+    end
+
     # Maps a Vtiger record to Wello client attributes.
     # Deals and contacts that belong to an organization are filed under that organization.
     def client_attributes(account, module_name, record)
@@ -183,10 +243,10 @@ module Wello
     end
 
     # Finds (or builds) the Wello client for a Vtiger record with fresh details from Vtiger. Not saved.
-    def build_client(account:, user:, module_name:, record_id:)
+    def build_client(account:, user:, module_name:, record_id: nil, number: nil)
       raise Error, "Unsupported Vtiger module #{module_name}" unless SUPPORTED_MODULES.include?(module_name)
 
-      ws_id = webservice_id(account, module_name, record_id)
+      ws_id = resolve_webservice_id(account, module_name, record_id:, number:)
       attrs = client_attributes(account, module_name, retrieve(account, ws_id))
 
       client = WelloClient.find_by(account:, vtiger_id: attrs[:vtiger_id])
@@ -196,6 +256,12 @@ module Wello
       client.assign_attributes(attrs)
 
       client
+    end
+
+    def resolve_webservice_id(account, module_name, record_id:, number:)
+      return webservice_id_by_number(account, module_name, number) if number.present?
+
+      webservice_id(account, module_name, record_id)
     end
 
     def sync_client(client)
