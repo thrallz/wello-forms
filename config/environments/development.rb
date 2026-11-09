@@ -77,6 +77,9 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
+  # Wello Forms Docker dev: don't rewrite db/schema.rb when migrations run, so `git pull` stays clean.
+  config.active_record.dump_schema_after_migration = false if ENV['WELLO_SKIP_SCHEMA_DUMP'] == 'true'
+
   config.active_record.encryption = {
     primary_key: 'dev master key',
     deterministic_key: 'dev deterministic key',
