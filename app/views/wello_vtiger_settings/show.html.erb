@@ -28,6 +28,10 @@
         </div>
         <p class="text-xs opacity-60"><%= t('wello_vtiger_access_key_hint') %></p>
         <div class="form-control">
+          <%= ff.label :signature_module, "#{t('wello_vtiger_signature_module')} (#{t('optional')})", class: 'label' %>
+          <%= ff.text_field :signature_module, value: value['signature_module'], class: 'base-input', placeholder: t('wello_vtiger_signature_module_placeholder') %>
+        </div>
+        <div class="form-control">
           <%= ff.label :mid_field, "#{t('wello_vtiger_mid_field')} (#{t('optional')})", class: 'label' %>
           <%= ff.text_field :mid_field, value: value['mid_field'], class: 'base-input', placeholder: 'cf_accounts_mid' %>
         </div>
@@ -39,6 +43,35 @@
     <% if @encrypted_config.persisted? %>
       <div class="mt-4 text-center">
         <%= button_to t('wello_disconnect'), settings_wello_vtiger_path, method: :delete, class: 'link text-sm opacity-70', form: { data: { turbo_confirm: t('are_you_sure_') } } %>
+      </div>
+    <% end %>
+
+    <% if @signatures_check %>
+      <div class="mt-8 rounded-2xl border border-base-300 p-5 space-y-3">
+        <h2 class="text-xl font-bold"><%= t('wello_vtiger_signatures_check') %></h2>
+        <% if @signatures_check[:error] %>
+          <p class="text-sm text-error"><%= @signatures_check[:error] %></p>
+        <% elsif @signatures_check[:module_name].blank? %>
+          <p class="text-sm opacity-80"><%= t('wello_vtiger_signatures_not_found') %></p>
+        <% else %>
+          <p class="text-sm"><%= t('wello_vtiger_signatures_found', name: @signatures_check[:module_name]) %></p>
+          <% map = @signatures_check[:map] %>
+          <ul class="text-sm space-y-1">
+            <% Wello::VtigerSignatures::FIELD_LABELS.each_key do |key| %>
+              <li class="flex items-center gap-2">
+                <%= svg_icon(map[key] ? 'circle_check' : 'x', class: "w-4 h-4 #{map[key] ? 'text-accent' : 'text-error'}") %>
+                <span><%= t("wello_vtiger_field_#{key}") %></span>
+                <% if map[key] %><span class="opacity-50 font-mono text-xs"><%= map[key] %></span><% end %>
+              </li>
+            <% end %>
+            <% %w[Accounts Contacts Leads Potentials].each do |target| %>
+              <li class="flex items-center gap-2">
+                <%= svg_icon(map[:references][target] ? 'circle_check' : 'x', class: "w-4 h-4 #{map[:references][target] ? 'text-accent' : 'opacity-40'}") %>
+                <span><%= t('wello_vtiger_related_to', module: t("wello_vtiger_module_#{target.downcase}")) %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
       </div>
     <% end %>
 

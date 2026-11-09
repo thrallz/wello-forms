@@ -48,7 +48,7 @@ class ProcessSubmitterCompletionJob
 
     enqueue_completed_webhooks(submitter, is_last:)
 
-    Wello::Vtiger.enqueue_completed_note(submission.reload) if is_last
+    Wello::VtigerSignatures.enqueue_sync(submission.reload) if is_last
   end
 
   def create_completed_submitter!(submitter)

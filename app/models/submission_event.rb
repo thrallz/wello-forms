@@ -41,6 +41,10 @@ class SubmissionEvent < ApplicationRecord
   before_validation :set_submission_id, on: :create
   before_validation :set_account_id, on: :create
 
+  # Wello Forms: keep the Vtiger "Wello Signatures" record in step (viewed / declined / signed).
+  after_create_commit -> { Wello::VtigerSignatures.enqueue_sync(submission) },
+                      if: -> { Wello::VtigerSignatures::SYNC_EVENT_TYPES.include?(event_type) }
+
   enum :event_type, {
     send_email: 'send_email',
     bounce_email: 'bounce_email',

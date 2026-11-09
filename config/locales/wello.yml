@@ -135,3 +135,17 @@ en:
   wello_vtiger_link_step3: Repeat for Contacts, Leads or Deals if you want the link there too, using the matching expression.
   wello_vtiger_link_existing_records: Existing records get the link the next time they are saved. To fill them all at once, select records in the list view and use Mass Edit to save them.
   wello_vtiger_button_title: Or add a button (Vtiger One Professional / Enterprise only)
+  wello_vtiger_signature_module: Wello Signatures module name
+  wello_vtiger_signature_module_placeholder: Detected automatically
+  wello_vtiger_signatures_check: Wello Signatures module
+  wello_vtiger_signatures_not_found: No "Wello Signatures" module found in Vtiger yet. Create it with Module Builder (see the setup guide) and reload this page. Until then, a comment is posted on the record when a document is signed.
+  wello_vtiger_signatures_found: 'Found module "%{name}". Matched fields:'
+  wello_vtiger_field_name: Document Name
+  wello_vtiger_field_status: Status (picklist Sent, Viewed, Signed, Declined)
+  wello_vtiger_field_signer_name: Signer Name
+  wello_vtiger_field_signer_email: Signer Email
+  wello_vtiger_field_sent_on: Sent On
+  wello_vtiger_field_signed_on: Signed On
+  wello_vtiger_field_link: Document Link
+  wello_vtiger_related_to: Linked to %{module}
+  wello_vtiger_signed_document_title: 'Signed: %{document}'

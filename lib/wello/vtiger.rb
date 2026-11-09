@@ -274,15 +274,6 @@ module Wello
       client
     end
 
-    def enqueue_completed_note(submission)
-      client = submission.wello_client
-
-      return if client&.vtiger_id.blank?
-      return unless configured?(submission.account)
-
-      WelloVtigerCompletedNoteJob.perform_async('submission_id' => submission.id)
-    end
-
     def add_comment(account, related_to:, text:)
       owner_id = me(account)['id']
 

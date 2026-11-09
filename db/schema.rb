@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_08_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_030000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_catalog.plpgsql"
@@ -388,6 +388,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_130000) do
     t.text "variables"
     t.text "variables_schema"
     t.bigint "wello_client_id"
+    t.string "wello_vtiger_document_id"
+    t.string "wello_vtiger_signature_id"
+    t.string "wello_vtiger_status"
     t.index ["account_id", "completed_at"], name: "index_submissions_on_account_id_and_completed_at", where: "((completed_at IS NOT NULL) AND (archived_at IS NULL))"
     t.index ["account_id", "id"], name: "index_submissions_on_account_id_and_id"
     t.index ["account_id", "id"], name: "index_submissions_on_account_id_and_id_pending", where: "((completed_at IS NULL) AND (archived_at IS NULL))"

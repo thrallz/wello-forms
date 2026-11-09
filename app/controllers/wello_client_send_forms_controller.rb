@@ -33,6 +33,7 @@ class WelloClientSendFormsController < ApplicationController
     WebhookUrls.enqueue_events(submissions, 'submission.created')
     Submissions.send_signature_requests(submissions)
     SearchEntries.enqueue_reindex(submissions)
+    submissions.each { |submission| Wello::VtigerSignatures.enqueue_sync(submission) }
 
     redirect_to wello_client_path(@wello_client), notice: I18n.t('wello_form_sent')
   rescue Submissions::CreateFromSubmitters::BaseError, Wello::SendFormError => e
