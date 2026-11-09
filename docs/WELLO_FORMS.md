@@ -110,7 +110,16 @@ Messaging Service SID (recommended for US A2P 10DLC). Use *Send a test SMS* to v
 
 **Vtiger (Cloud):** Settings → Vtiger → URL (`https://yourcompany.od2.vtiger.com`), username and access key
 (Vtiger → My Preferences), optional MID custom field name (e.g. `cf_accounts_mid`). Save tests the connection.
-- **Button in Vtiger:** Menu → Platform → Module Designer → UI Actions → *Detail View Basic Button* for
+- **Import from Vtiger** (Clients page): search organizations, contacts and leads by name, email, phone or
+  record number, then *Import & send*. Works on every Vtiger edition.
+- **Link on Vtiger records (classic Vtiger / any edition):** Settings → Module Layouts & Fields → Organizations →
+  add a URL custom field "Wello Forms". Settings → Workflows → new workflow for Organizations, *every time the
+  record is saved*, action *Update Fields*: Wello Forms = expression
+  `concat('https://<wello-forms-host>/vtiger/open?module=Accounts&number=', account_no)`
+  (Contacts: `module=Contacts` + `contact_no`; Leads: `lead_no`; Deals: `module=Potentials` + `potential_no`).
+  Existing records get the link when next saved (use Mass Edit to save many). Settings → Vtiger in Wello Forms
+  shows the exact expressions with your server address.
+- **Button in Vtiger (One Professional/Enterprise only):** Menu → Platform → Module Designer → UI Actions → *Detail View Basic Button* for
   Organizations / Contacts / Leads / Deals, click action:
   `window.open('https://<wello-forms-host>/vtiger/open?module=' + VTAP.Detail.Module() + '&record=' + VTAP.Detail.Id(), '_blank');`
   Clicking it imports/refreshes the client in Wello Forms (contacts and deals are filed under their organization)
