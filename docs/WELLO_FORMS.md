@@ -168,7 +168,7 @@ What happens after that, for documents sent to a client linked to Vtiger:
 ### Next ideas
 - SuiteCRM connector (same interface as `Wello::Vtiger`).
 - Employee work queue across clients (sent → viewed → signed → reviewed → filed) with reminders.
-- Attach signed PDFs to the Vtiger record (Documents module), not just a comment.
+- Upload the signed PDF file itself into Vtiger Documents (today it's a web link to the signed copy).
 
 ## Testing
 
